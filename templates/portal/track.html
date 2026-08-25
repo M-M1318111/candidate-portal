@@ -1,0 +1,126 @@
+{% extends 'portal/base.html' %}
+
+{% block title %}Track Application Status - Central Examination Portal{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="card shadow-sm p-4 mx-auto" style="max-width: 750px; border-radius: 12px;">
+        
+        <div class="text-center mb-4">
+            <div class="fs-1 mb-2">🔍</div>
+            <h3 class="fw-bold text-primary mb-1">Track Application Status</h3>
+            <p class="text-muted small mb-0">Search using your Registration No, Roll No, Registered Email, or Mobile Number</p>
+        </div>
+
+        <!-- Alert Messages -->
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %} py-2 px-3 small rounded-3" role="alert">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        <!-- Quick Multi-Search Form -->
+        <form method="POST" action="{% url 'track_status' %}" class="mb-4">
+            {% csrf_token %}
+            <div class="row g-2 justify-content-center">
+                <div class="col-md-9">
+                    <input 
+                        type="text" 
+                        name="query" 
+                        value="{{ query|default:'' }}" 
+                        class="form-control form-control-lg" 
+                        placeholder="e.g. CSND-1234ABCD / 9876543210 / email@domain.com" 
+                        required 
+                        autocomplete="off">
+                </div>
+                <div class="col-md-3">
+                    <button type="submit" class="btn btn-primary btn-lg w-100 fw-semibold shadow-sm">
+                        Track Now
+                    </button>
+                </div>
+            </div>
+        </form>
+
+        <!-- Candidate Search Results -->
+        {% if searched %}
+            {% if candidate %}
+                <div class="border rounded-3 p-4 bg-light shadow-sm">
+                    <div class="d-flex justify-content-between align-items-center border-bottom pb-2 mb-3 flex-wrap gap-2">
+                        <div>
+                            <h5 class="fw-bold text-dark mb-0">{{ candidate.full_name }}</h5>
+                            <span class="text-muted small">Application Date: {{ candidate.created_at|date:"d M Y" }}</span>
+                        </div>
+                        <div>
+                            {% if candidate.is_paid %}
+                                <span class="badge bg-success fs-6 px-3 py-2">✓ Application Confirmed (Paid)</span>
+                            {% else %}
+                                <span class="badge bg-warning text-dark fs-6 px-3 py-2">⚠️ Payment Pending</span>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="row g-3 small">
+                        <div class="col-sm-6">
+                            <span class="text-muted">Registration Number:</span>
+                            <div class="fw-bold fs-6 text-primary">{{ candidate.registration_no }}</div>
+                        </div>
+                        <div class="col-sm-6">
+                            <span class="text-muted">Roll Number:</span>
+                            <div class="fw-bold fs-6">{{ candidate.roll_number|default:"Pending Payment" }}</div>
+                        </div>
+                        <div class="col-sm-6">
+                            <span class="text-muted">Father's Name:</span>
+                            <div class="fw-semibold">{{ candidate.father_name }}</div>
+                        </div>
+                        <div class="col-sm-6">
+                            <span class="text-muted">Date of Birth:</span>
+                            <div class="fw-semibold">{{ candidate.dob }}</div>
+                        </div>
+                        <div class="col-sm-6">
+                            <span class="text-muted">Category / Gender:</span>
+                            <div class="fw-semibold">{{ candidate.category }} / {{ candidate.get_gender_display|default:candidate.gender }}</div>
+                        </div>
+                        <div class="col-sm-6">
+                            <span class="text-muted">Allocated Exam Center:</span>
+                            <div class="fw-semibold text-primary">{{ candidate.center_choice_1|default:candidate.exam_center|default:"Main Examination Hall" }}</div>
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="d-flex flex-wrap gap-2 justify-content-end mt-4 pt-3 border-top">
+                        <a href="{% url 'download_pdf' candidate.registration_no %}" class="btn btn-outline-primary btn-sm fw-semibold">
+                            📄 Download Application Slip
+                        </a>
+                        
+                        {% if candidate.is_paid %}
+                            <a href="{% url 'download_admit_card' candidate.registration_no %}" class="btn btn-success btn-sm fw-semibold">
+                                🎟️ Download Admit Card
+                            </a>
+                        {% else %}
+                            <a href="{% url 'preview' candidate.registration_no %}" class="btn btn-warning btn-sm fw-semibold shadow-sm">
+                                💳 Pay Fee (₹{{ candidate.fee_amount }})
+                            </a>
+                        {% endif %}
+                    </div>
+                </div>
+            {% else %}
+                <div class="alert alert-danger text-center py-3 rounded-3" role="alert">
+                    <h6 class="fw-bold mb-1">No Application Found</h6>
+                    <p class="mb-0 small">No matching candidate record found for "<strong>{{ query }}</strong>". Please recheck your details or register as a new applicant.</p>
+                </div>
+            {% endif %}
+        {% endif %}
+
+        <!-- Footer Links -->
+        <div class="text-center mt-4 border-top pt-3">
+            <span class="text-muted small">Need to update or make payment? </span>
+            <a href="{% url 'candidate_login' %}" class="small text-decoration-none fw-semibold">Login to Dashboard</a>
+            <span class="mx-2 text-muted">|</span>
+            <a href="{% url 'home' %}" class="small text-decoration-none">Back to Home</a>
+        </div>
+
+    </div>
+</div>
+{% endblock %}

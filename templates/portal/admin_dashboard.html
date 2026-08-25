@@ -1,0 +1,223 @@
+{% extends 'portal/base.html' %}
+
+{% block title %}Executive Administration Control Center - 2026{% endblock %}
+
+{% block content %}
+<style>
+    .stat-glow-card {
+        border-radius: 18px;
+        padding: 1.5rem;
+        color: white;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        border: none;
+    }
+    .stat-glow-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 30px rgba(0,0,0,0.15);
+    }
+    .table-modern thead th {
+        background: #0f172a;
+        color: #f8fafc;
+        font-size: 12px;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+        padding: 14px 12px;
+        border: none;
+    }
+    .table-modern tbody td {
+        vertical-align: middle;
+        padding: 14px 12px;
+        font-size: 13px;
+        border-color: #f1f5f9;
+    }
+    .table-modern tbody tr:hover {
+        background-color: #f8fafc;
+    }
+    .badge-pill-custom {
+        padding: 4px 10px;
+        border-radius: 9999px;
+        font-weight: 700;
+        font-size: 11px;
+    }
+</style>
+
+<div class="container-fluid px-4 my-4">
+    
+    <!-- Top Executive Header -->
+    <div class="card shadow-sm border-0 bg-white p-4 rounded-4 mb-4" data-aos="fade-down">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+            <div>
+                <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-3 py-1 rounded-pill fw-bold mb-2">
+                    <i class="bi bi-shield-lock-fill me-1"></i> Authorized Control Room
+                </span>
+                <h3 class="fw-bold font-display text-dark mb-0">Candidate Central Master Console</h3>
+                <p class="text-muted small mb-0">Live Application Records, Verification Hub, and Direct Document Dispenser</p>
+            </div>
+            <div class="d-flex gap-2">
+                <a href="/admin/" class="btn btn-outline-secondary btn-sm px-3 rounded-3 fw-semibold">
+                    <i class="bi bi-sliders me-1"></i> Django Native Panel
+                </a>
+                <a href="{% url 'home' %}" class="btn btn-dark btn-sm px-3 rounded-3 fw-semibold">
+                    <i class="bi bi-box-arrow-up-right me-1"></i> Public Portal
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- 4 High-Impact Live Counter Badges -->
+    <div class="row g-3 mb-4" data-aos="fade-up">
+        
+        <!-- Card 1 -->
+        <div class="col-xl-3 col-sm-6">
+            <div class="stat-glow-card shadow" style="background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="text-uppercase small fw-bold opacity-75">Total Applicants</div>
+                        <h2 class="display-6 fw-bold mb-0 mt-1">{{ total_count }}</h2>
+                    </div>
+                    <div class="fs-1 opacity-50"><i class="bi bi-people-fill"></i></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Card 2 -->
+        <div class="col-xl-3 col-sm-6">
+            <div class="stat-glow-card shadow" style="background: linear-gradient(135deg, #065f46 0%, #10b981 100%);">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="text-uppercase small fw-bold opacity-75">Paid & Confirmed</div>
+                        <h2 class="display-6 fw-bold mb-0 mt-1">{{ paid_count }}</h2>
+                    </div>
+                    <div class="fs-1 opacity-50"><i class="bi bi-patch-check-fill"></i></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Card 3 -->
+        <div class="col-xl-3 col-sm-6">
+            <div class="stat-glow-card shadow" style="background: linear-gradient(135deg, #92400e 0%, #f59e0b 100%);">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="text-uppercase small fw-bold opacity-75">Fee Pending</div>
+                        <h2 class="display-6 fw-bold mb-0 mt-1">{{ unpaid_count }}</h2>
+                    </div>
+                    <div class="fs-1 opacity-50"><i class="bi bi-hourglass-split"></i></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Card 4 -->
+        <div class="col-xl-3 col-sm-6">
+            <div class="stat-glow-card shadow" style="background: linear-gradient(135deg, #991b1b 0%, #ef4444 100%);">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="text-uppercase small fw-bold opacity-75">Open Grievances</div>
+                        <h2 class="display-6 fw-bold mb-0 mt-1">{{ total_tickets }}</h2>
+                    </div>
+                    <div class="fs-1 opacity-50"><i class="bi bi-headset"></i></div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Complete Real-Time Candidate Grid -->
+    <div class="card shadow-sm border-0 rounded-4 overflow-hidden bg-white" data-aos="fade-up" data-aos-delay="100">
+        <div class="p-3 px-4 border-bottom d-flex justify-content-between align-items-center bg-light">
+            <h5 class="fw-bold mb-0 text-dark"><i class="bi bi-table me-2 text-primary"></i>All Registered Candidates Master Roster</h5>
+            <span class="badge bg-secondary rounded-pill px-3">{{ total_count }} Records Listed</span>
+        </div>
+        
+        <div class="table-responsive">
+            <table class="table table-modern table-hover align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th class="text-center">Photo</th>
+                        <th>Reg / Roll No</th>
+                        <th>Candidate Profile</th>
+                        <th>Contact Details</th>
+                        <th>Category</th>
+                        <th>Qualification & Marks</th>
+                        <th>Allotted Center</th>
+                        <th>Status</th>
+                        <th class="text-center">Direct Downloads</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for c in candidates %}
+                    <tr>
+                        <td class="text-center">
+                            {% if c.photo %}
+                                <img src="{{ c.photo.url }}" style="width: 44px; height: 50px; object-fit: cover; border-radius: 8px; border: 1.5px solid #3b82f6; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                            {% else %}
+                                <span class="badge bg-light text-muted border">No Pic</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <strong class="text-primary font-monospace">{{ c.registration_no }}</strong><br>
+                            <span class="text-muted small">Roll: <strong class="text-dark">{{ c.roll_number|default:"Pending" }}</strong></span>
+                        </td>
+                        <td>
+                            <div class="fw-bold text-dark">{{ c.full_name }}</div>
+                            <div class="text-muted small">Father: {{ c.father_name }} | DOB: {{ c.dob }}</div>
+                        </td>
+                        <td>
+                            <div><i class="bi bi-envelope-at me-1 text-secondary"></i>{{ c.email }}</div>
+                            <div class="text-info fw-semibold small"><i class="bi bi-phone me-1"></i>+91-{{ c.phone }}</div>
+                        </td>
+                        <td>
+                            <span class="badge badge-pill-custom {% if c.category == 'General' or c.category == 'UR' %}bg-secondary{% elif c.category == 'OBC' %}bg-primary{% elif c.category == 'SC' or c.category == 'ST' %}bg-warning text-dark{% else %}bg-info{% endif %}">
+                                {{ c.category }}
+                            </span>
+                        </td>
+                        <td>
+                            <strong>{{ c.qualification_class }}</strong> ({{ c.passing_year|default:"-" }})<br>
+                            <span class="text-success fw-bold">{{ c.percentage }}%</span> 
+                            <span class="text-muted small">({{ c.obtained_marks }}/{{ c.total_marks }})</span>
+                        </td>
+                        <td>
+                            <span class="fw-semibold text-dark small">{{ c.center_choice_1|default:"Main Examination Center" }}</span>
+                        </td>
+                        <td>
+                            {% if c.is_paid %}
+                                <span class="badge bg-success-subtle text-success border border-success-subtle px-3 py-2 rounded-pill fw-bold">
+                                    ✓ PAID (₹{{ c.fee_amount }})
+                                </span>
+                            {% else %}
+                                <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle px-3 py-2 rounded-pill fw-bold">
+                                    ⏳ PENDING
+                                </span>
+                            {% endif %}
+                        </td>
+                        <td class="text-center">
+                            <div class="d-inline-flex gap-2">
+                                <a href="{% url 'download_pdf' c.registration_no %}" target="_blank" class="btn btn-outline-primary btn-sm rounded-3 fw-semibold">
+                                    <i class="bi bi-file-earmark-pdf"></i> Slip
+                                </a>
+                                {% if c.is_paid %}
+                                    <a href="{% url 'download_admit_card' c.registration_no %}" target="_blank" class="btn btn-success btn-sm rounded-3 fw-semibold shadow-sm">
+                                        <i class="bi bi-ticket-perforated"></i> Admit Card
+                                    </a>
+                                {% else %}
+                                    <button class="btn btn-light btn-sm text-muted rounded-3 border" disabled title="Payment Pending">
+                                        🔒 Locked
+                                    </button>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="9" class="text-center py-5 text-muted">
+                            <i class="bi bi-inbox fs-1 d-block mb-2 opacity-50"></i>
+                            No candidate registrations found in the system yet.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

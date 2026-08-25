@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>E-Admit Card - {{ candidate.roll_number|default:candidate.registration_no }}</title>
+    <style>
+        @page { size: A4 portrait; margin: 6mm; }
+        * { box-sizing: border-box; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+        body {
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            font-size: 10px;
+            color: #0f172a;
+            background: #f1f5f9;
+            margin: 0;
+            padding: 8px;
+        }
+        .no-print {
+            max-width: 800px;
+            margin: 0 auto 8px auto;
+            text-align: right;
+        }
+        .btn-print {
+            background: #0f172a;
+            color: white;
+            padding: 7px 16px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: bold;
+            border: none;
+            cursor: pointer;
+        }
+        .btn-back {
+            background: #64748b;
+            color: white;
+            padding: 7px 14px;
+            border-radius: 6px;
+            font-size: 12px;
+            text-decoration: none;
+            margin-left: 8px;
+        }
+        .admit-card {
+            max-width: 800px;
+            margin: 0 auto;
+            background: #ffffff;
+            border: 2px solid #0f172a;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+        }
+        .admit-header {
+            background: #0f172a;
+            color: white;
+            padding: 10px 16px;
+            text-align: center;
+            border-bottom: 3px solid #2563eb;
+        }
+        .admit-header h1 {
+            margin: 0;
+            font-size: 15px;
+            font-weight: 800;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+        .admit-header p {
+            margin: 2px 0 0 0;
+            font-size: 10.5px;
+            color: #93c5fd;
+            font-weight: 600;
+        }
+        .admit-body { padding: 10px 14px; }
+
+        .roll-strip {
+            background: linear-gradient(90deg, #eff6ff 0%, #dbeafe 100%);
+            border: 1px solid #bfdbfe;
+            border-left: 5px solid #2563eb;
+            padding: 6px 12px;
+            border-radius: 6px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        .roll-strip span { font-size: 9px; color: #475569; font-weight: bold; text-transform: uppercase; }
+        .roll-strip strong { font-size: 15px; color: #1e3a8a; font-family: monospace; }
+
+        table.admit-main {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 6px;
+            table-layout: fixed;
+        }
+        table.admit-main th, table.admit-main td {
+            border: 1px solid #cbd5e1;
+            padding: 4px 7px;
+            font-size: 9.5px;
+        }
+        table.admit-main th { background: #f8fafc; color: #475569; font-weight: bold; width: 22%; }
+
+        .section-tag {
+            background: #1e293b;
+            color: white;
+            font-size: 9.5px;
+            font-weight: bold;
+            padding: 3px 6px;
+            border-radius: 3px;
+            margin: 6px 0 3px 0;
+            text-transform: uppercase;
+        }
+
+        table.schedule-table {
+            width: 100%;
+            border-collapse: collapse;
+            table-layout: fixed;
+            margin-bottom: 6px;
+        }
+        table.schedule-table th {
+            background: #f1f5f9;
+            text-align: center;
+            font-size: 9px;
+            padding: 3px;
+            border: 1px solid #cbd5e1;
+            color: #475569;
+        }
+        table.schedule-table td {
+            text-align: center;
+            font-weight: bold;
+            font-size: 10.5px;
+            padding: 5px;
+            border: 1px solid #cbd5e1;
+        }
+
+        table.bio-boxes {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 6px;
+            table-layout: fixed;
+        }
+        table.bio-boxes td {
+            border: 1px dashed #64748b;
+            height: 52px;
+            text-align: center;
+            vertical-align: bottom;
+            font-size: 8px;
+            font-weight: bold;
+            color: #475569;
+            padding-bottom: 3px;
+            background: #fafafa;
+        }
+
+        .rules-box {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 5px;
+            padding: 5px 8px;
+            font-size: 8px;
+            color: #334155;
+            line-height: 1.3;
+        }
+        .rules-box ol { margin: 2px 0 0 12px; padding: 0; }
+
+        .auth-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            margin-top: 8px;
+            padding-top: 4px;
+        }
+        @media print {
+            .no-print { display: none !important; }
+            body { background: white; padding: 0; }
+            .admit-card { border: 2px solid #000; border-radius: 0; box-shadow: none; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="no-print">
+    <button onclick="window.print()" class="btn-print">🖨️ Print E-Admit Card</button>
+    <a href="{% url 'candidate_dashboard' %}" class="btn-back">Candidate Portal</a>
+</div>
+
+<div class="admit-card">
+    
+    <!-- Top Header -->
+    <div class="admit-header">
+        <h1>Central Examination Authority — 2026</h1>
+        <p>E-ADMIT CARD FOR COMPUTER BASED TEST (CBT) SESSION 2026-27</p>
+    </div>
+
+    <div class="admit-body">
+
+        <!-- Roll Number Strip -->
+        <div class="roll-strip">
+            <div>
+                <span>Candidate Roll Number</span>
+                <strong>{{ candidate.roll_number|default:"CBT-ALLOCATION-PENDING" }}</strong>
+            </div>
+            <div>
+                <span>Application Number</span>
+                <strong style="font-size: 13px; color: #0f172a;">{{ candidate.registration_no }}</strong>
+            </div>
+            <div>
+                <span style="background: #10b981; color: white; padding: 3px 8px; border-radius: 4px; font-size: 8.5px; font-weight: bold;">PASS ISSUED</span>
+            </div>
+        </div>
+
+        <!-- Candidate Table with Right Media Column -->
+        <table class="admit-main">
+            <tr>
+                <th>Candidate Full Name</th>
+                <td><strong style="color: #1e3a8a; font-size: 10.5px;">{{ candidate.full_name }}</strong></td>
+                <td rowspan="6" style="width: 26%; text-align: center; vertical-align: middle; background: #fafafa; padding: 4px;">
+                    <!-- QR Code -->
+                    {% if qr_code_base64 %}
+                        <img src="data:image/png;base64,{{ qr_code_base64 }}" style="width: 48px; height: 48px; border: 1px solid #cbd5e1; padding: 2px; border-radius: 4px; background: white; margin-bottom: 2px;">
+                    {% endif %}
+                    
+                    <!-- Candidate Photo -->
+                    {% if photo_base64 %}
+                        <div>
+                            <img src="{{ photo_base64 }}" style="width: 72px; height: 82px; object-fit: cover; border: 1.5px solid #0f172a; border-radius: 4px; margin-bottom: 2px;">
+                        </div>
+                    {% elif candidate.photo %}
+                        <div>
+                            <img src="{{ candidate.photo.url }}" style="width: 72px; height: 82px; object-fit: cover; border: 1.5px solid #0f172a; border-radius: 4px; margin-bottom: 2px;">
+                        </div>
+                    {% else %}
+                        <div style="font-size: 8px; color: red; margin-bottom: 2px;">Photo Missing</div>
+                    {% endif %}
+
+                    <!-- Candidate Signature -->
+                    {% if signature_base64 %}
+                        <div>
+                            <img src="{{ signature_base64 }}" style="width: 75px; height: 24px; object-fit: contain; border: 1px solid #94a3b8; border-radius: 3px; background: white;">
+                        </div>
+                    {% elif candidate.signature %}
+                        <div>
+                            <img src="{{ candidate.signature.url }}" style="width: 75px; height: 24px; object-fit: contain; border: 1px solid #94a3b8; border-radius: 3px; background: white;">
+                        </div>
+                    {% else %}
+                        <div style="font-size: 8px; color: red;">Signature Missing</div>
+                    {% endif %}
+                </td>
+            </tr>
+            <tr>
+                <th>Father's Name</th>
+                <td>{{ candidate.father_name }}</td>
+            </tr>
+            <tr>
+                <th>Mother's Name</th>
+                <td>{{ candidate.mother_name|default:"Not Mentioned" }}</td>
+            </tr>
+            <tr>
+                <th>Date of Birth</th>
+                <td>{{ candidate.dob }}</td>
+            </tr>
+            <tr>
+                <th>Gender / Category</th>
+                <td>{{ candidate.gender }} / <strong style="color: #1e3a8a;">{{ candidate.category }}</strong></td>
+            </tr>
+            <tr>
+                <th>Identity Proof</th>
+                <td>Aadhaar Verified: <strong>{{ candidate.aadhaar_number }}</strong></td>
+            </tr>
+        </table>
+
+        <!-- Test Center & Time Schedule -->
+        <div class="section-tag">TEST SCHEDULE & ALLOTTED VENUE</div>
+        <table class="schedule-table">
+            <tr>
+                <th>EXAM DATE</th>
+                <th>REPORTING TIME</th>
+                <th>GATE CLOSES</th>
+                <th>TEST DURATION</th>
+            </tr>
+            <tr>
+                <td style="color: #1e3a8a;">15 OCT 2026</td>
+                <td style="color: #16a34a;">08:30 AM</td>
+                <td style="color: #dc2626;">09:30 AM</td>
+                <td>10:00 AM – 01:00 PM</td>
+            </tr>
+            <tr>
+                <td colspan="4" style="text-align: left; font-weight: normal; font-size: 9.5px; background: #ffffff; padding: 5px 8px;">
+                    <strong>Allotted Test Center:</strong> {{ candidate.center_choice_1|default:"National Assessment Center" }} Digital Assessment Zone.
+                </td>
+            </tr>
+        </table>
+
+        <!-- Biometric 3-Box Verification -->
+        <div class="section-tag">BIOMETRIC ATTENDANCE & VERIFICATION BOXES</div>
+        <table class="bio-boxes">
+            <tr>
+                <td>Candidate's Left Thumb Impression<br><span style="font-size: 7px; color: #94a3b8;">(Affix before entering center)</span></td>
+                <td>Candidate's Signature<br><span style="font-size: 7px; color: #94a3b8;">(To be signed in presence of Invigilator)</span></td>
+                <td>Invigilator's Signature<br><span style="font-size: 7px; color: #94a3b8;">(Verified & Certified)</span></td>
+            </tr>
+        </table>
+
+        <!-- Instructions -->
+        <div class="rules-box">
+            <strong>Important Exam Guidelines:</strong>
+            <ol>
+                <li>Candidate must carry a clear printed copy of this E-Admit Card with one <strong>Original Valid Photo ID</strong> (Aadhaar/Voter ID/Passport).</li>
+                <li>No candidate is permitted after Gate Closing Time (09:30 AM). Strictly adhere to the reporting slot.</li>
+                <li>Electronic items (phones, smartwatches, calculators) and study materials are strictly banned in the exam hall.</li>
+            </ol>
+        </div>
+
+        <!-- Footer -->
+        <div class="auth-footer">
+            <div style="font-size: 7.5px; color: #64748b;">
+                * System generated verifiable pass. No physical seal required.
+            </div>
+            <div style="text-align: center; width: 140px; border-top: 1.5px solid #0f172a; padding-top: 2px;">
+                <strong style="font-size: 9px;">Controller of Examinations</strong><br>
+                <span style="font-size: 7.5px; color: #475569;">Central Assessment Authority</span>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+</body>
+</html>

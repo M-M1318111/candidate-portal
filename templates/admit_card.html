@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        @page {
+            size: A4;
+            margin: 1cm;
+        }
+        body {
+            font-family: Helvetica, Arial, sans-serif;
+            font-size: 11px;
+            color: #222;
+        }
+        .admit-container {
+            border: 2px solid #000;
+            padding: 15px;
+        }
+        .header {
+            text-align: center;
+            border-bottom: 2px solid #000;
+            padding-bottom: 8px;
+            margin-bottom: 12px;
+        }
+        .header h2 {
+            margin: 0;
+            font-size: 18px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .header p {
+            margin: 3px 0 0 0;
+            font-size: 12px;
+            font-weight: bold;
+            color: #444;
+        }
+        .badge-header {
+            background-color: #000;
+            color: #fff;
+            padding: 4px 8px;
+            font-size: 11px;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 12px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 12px;
+        }
+        th, td {
+            border: 1px solid #333;
+            padding: 6px 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+            width: 25%;
+            font-weight: bold;
+        }
+        .section-title {
+            background-color: #e9ecef;
+            border-left: 4px solid #000;
+            padding: 4px 8px;
+            font-size: 11px;
+            font-weight: bold;
+            margin-top: 10px;
+            margin-bottom: 6px;
+        }
+        .instructions {
+            font-size: 9.5px;
+            line-height: 1.4;
+            margin-top: 10px;
+        }
+        .instructions ol {
+            margin: 4px 0 0 15px;
+            padding: 0;
+        }
+    </style>
+</head>
+<body>
+
+<div class="admit-container">
+    
+    <!-- Header -->
+    <div class="header">
+        <h2>Online Examination Authority</h2>
+        <p>E-ADMIT CARD / HALL TICKET</p>
+    </div>
+
+    <div class="badge-header">
+        PROVISIONAL ADMIT CARD FOR COMPUTER BASED TEST (CBT)
+    </div>
+
+    <!-- Candidate Details & Photo / Signature / QR Block -->
+    <table>
+        <tr>
+            <!-- Left Info Columns -->
+            <td style="width: 75%; vertical-align: top; border: none; padding: 0;">
+                <table style="width: 100%; margin-bottom: 0;">
+                    <tr>
+                        <th>Roll Number</th>
+                        <td><strong style="font-size: 13px;">{{ candidate.roll_number }}</strong></td>
+                    </tr>
+                    <tr>
+                        <th>Registration No</th>
+                        <td><strong>{{ candidate.registration_no }}</strong></td>
+                    </tr>
+                    <tr>
+                        <th>Candidate Name</th>
+                        <td>{{ candidate.full_name }}</td>
+                    </tr>
+                    <tr>
+                        <th>Father's Name</th>
+                        <td>{{ candidate.father_name }}</td>
+                    </tr>
+                    <tr>
+                        <th>Date of Birth</th>
+                        <td>{{ candidate.dob }}</td>
+                    </tr>
+                    <tr>
+                        <th>Gender / Category</th>
+                        <td>{{ candidate.get_gender_display }} / {{ candidate.category }}</td>
+                    </tr>
+                </table>
+            </td>
+
+            <!-- Right Column: QR Code + Photo + Sign -->
+            <td style="width: 25%; text-align: center; vertical-align: top; border: 1px solid #333; padding: 6px; background-color: #fafafa;">
+                
+                <!-- 1. Live Dynamic QR Code -->
+                {% if qr_code_base64 %}
+                    <div style="margin-bottom: 8px;">
+                        <img src="data:image/png;base64,{{ qr_code_base64 }}" style="width: 75px; height: 75px; border: 1px solid #888; padding: 2px;">
+                        <div style="font-size: 7.5px; color: #555; margin-top: 1px;">Official Verification QR</div>
+                    </div>
+                {% endif %}
+
+                <!-- 2. Candidate Photo -->
+                {% if candidate.photo %}
+                    <img src="{{ candidate.photo.path }}" style="width: 80px; height: 95px; border: 1px solid #000; object-fit: cover; margin-bottom: 4px;">
+                {% endif %}
+
+                <!-- 3. Candidate Signature -->
+                {% if candidate.signature %}
+                    <div>
+                        <img src="{{ candidate.signature.path }}" style="width: 80px; height: 28px; border: 1px solid #888; object-fit: contain;">
+                    </div>
+                {% endif %}
+            </td>
+        </tr>
+    </table>
+
+    <!-- Examination Center Schedule -->
+    <div class="section-title">Examination Center & Schedule Details</div>
+    <table>
+        <tr>
+            <th>Exam Date</th>
+            <td><strong>{{ candidate.exam_date }}</strong></td>
+            <th>Reporting Time</th>
+            <td><strong>08:30 AM IST</strong></td>
+        </tr>
+        <tr>
+            <th>Examination Timing</th>
+            <td>10:00 AM to 01:00 PM</td>
+            <th>Gate Closing Time</th>
+            <td>09:30 AM (Strict)</td>
+        </tr>
+        <tr>
+            <th>Allotted Test Center</th>
+            <td colspan="3" style="font-size: 12px; font-weight: bold; color: #000;">
+                {{ candidate.exam_center }}
+            </td>
+        </tr>
+    </table>
+
+    <!-- Important Instructions -->
+    <div class="section-title">Important Instructions for the Candidate</div>
+    <div class="instructions">
+        <ol>
+            <li>Candidates must bring a printed copy of this Admit Card along with an original valid Photo Identity Proof (Aadhaar Card / Voter ID / PAN Card / Driving License).</li>
+            <li>No candidate will be allowed entry into the examination center after the Gate Closing Time under any circumstances.</li>
+            <li>Electronic items like mobile phones, smartwatches, calculators, or any Bluetooth-enabled devices are strictly prohibited inside the exam hall.</li>
+            <li>This admit card is provisional and subject to verification of eligibility criteria mentioned during online registration.</li>
+        </ol>
+    </div>
+
+    <!-- Signatures Footer -->
+    <table style="margin-top: 25px; border: none;">
+        <tr style="border: none;">
+            <td style="border: none; text-align: left; width: 50%;">
+                <div style="border-top: 1px dashed #444; width: 170px; text-align: center; padding-top: 4px;">
+                    Candidate's Signature<br><small>(To be signed in presence of Invigilator)</small>
+                </div>
+            </td>
+            <td style="border: none; text-align: right; width: 50%;">
+                <div style="border-top: 1px solid #000; width: 150px; text-align: center; padding-top: 4px; margin-left: auto;">
+                    <strong>Controller of Examinations</strong><br><small>Examination Authority</small>
+                </div>
+            </td>
+        </tr>
+    </table>
+
+</div>
+
+</body>
+</html>

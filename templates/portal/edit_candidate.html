@@ -1,0 +1,80 @@
+{% extends 'portal/base.html' %}
+
+{% block title %}Edit Application - {{ candidate.registration_no }}{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="card shadow-sm p-4 mx-auto" style="max-width: 850px; border-radius: 10px;">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h3 class="fw-bold mb-0">Edit Application Details</h3>
+            <span class="badge bg-secondary fs-6">{{ candidate.registration_no }}</span>
+        </div>
+        <p class="text-muted mb-4">Modify your details below and click Update.</p>
+
+        {% if form.errors %}
+            <div class="alert alert-danger">
+                <h6 class="fw-bold mb-2">Please fix errors:</h6>
+                <ul class="mb-0">
+                    {% for field in form %}
+                        {% for error in field.errors %}
+                            <li>{{ field.label }}: {{ error }}</li>
+                        {% endfor %}
+                    {% endfor %}
+                </ul>
+            </div>
+        {% endif %}
+
+        <form method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+
+            <h5 class="text-primary border-bottom pb-2 mb-3">1. Personal Information</h5>
+            <div class="row g-3 mb-4">
+                <div class="col-md-4"><label class="form-label">Full Name *</label>{{ form.full_name }}</div>
+                <div class="col-md-4"><label class="form-label">Father's Name *</label>{{ form.father_name }}</div>
+                <div class="col-md-4"><label class="form-label">Mother's Name *</label>{{ form.mother_name }}</div>
+                <div class="col-md-4"><label class="form-label">Date of Birth *</label>{{ form.dob }}</div>
+                <div class="col-md-4"><label class="form-label">Gender *</label>{{ form.gender }}</div>
+                <div class="col-md-4"><label class="form-label">Category *</label>{{ form.category }}</div>
+            </div>
+
+            <h5 class="text-primary border-bottom pb-2 mb-3">2. Contact Details</h5>
+            <div class="row g-3 mb-4">
+                <div class="col-md-6"><label class="form-label">Email Address *</label>{{ form.email }}</div>
+                <div class="col-md-6"><label class="form-label">Mobile Number *</label>{{ form.phone }}</div>
+                <div class="col-12"><label class="form-label">Address *</label>{{ form.address }}</div>
+            </div>
+
+            <h5 class="text-primary border-bottom pb-2 mb-3">3. Educational Details</h5>
+            <div class="row g-3 mb-3">
+                <div class="col-md-3"><label class="form-label">Class / Exam *</label>{{ form.qualification_class }}</div>
+                <div class="col-md-3"><label class="form-label">Passing Year *</label>{{ form.passing_year }}</div>
+                <div class="col-md-3"><label class="form-label">Total Marks *</label>{{ form.total_marks }}</div>
+                <div class="col-md-3"><label class="form-label">Obtained Marks *</label>{{ form.obtained_marks }}</div>
+            </div>
+
+            <h5 class="text-primary border-bottom pb-2 mb-3">4. Change Documents (Optional)</h5>
+            <div class="row g-3 mb-4">
+                <div class="col-md-6">
+                    <label class="form-label">Update Photo</label>
+                    {{ form.photo }}
+                    {% if candidate.photo %}
+                        <div class="mt-2 small text-muted">Current: <a href="{{ candidate.photo.url }}" target="_blank">View Photo</a></div>
+                    {% endif %}
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Update Signature</label>
+                    {{ form.signature }}
+                    {% if candidate.signature %}
+                        <div class="mt-2 small text-muted">Current: <a href="{{ candidate.signature.url }}" target="_blank">View Signature</a></div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="d-flex justify-content-between mt-4">
+                <a href="{% url 'preview' candidate.registration_no %}" class="btn btn-outline-secondary px-4">Cancel</a>
+                <button type="submit" class="btn btn-warning px-5 fw-semibold">Save Changes & Preview</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

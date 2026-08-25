@@ -1,0 +1,25 @@
+{% extends 'portal/base.html' %}
+
+{% block title %}Registration Completed{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="card shadow-sm p-4 mx-auto text-center" style="max-width: 600px; border-radius: 12px;">
+        <div class="text-success mb-2" style="font-size: 55px;">✓</div>
+        <h2 class="fw-bold text-success mb-2">Registration Completed!</h2>
+        <p class="text-muted">Your application has been submitted and payment is verified.</p>
+        
+        <div class="alert alert-light border my-4 text-start">
+            <p class="mb-1"><strong>Candidate Name:</strong> {{ candidate.full_name }}</p>
+            <p class="mb-1"><strong>Registration No:</strong> <span class="text-primary fw-bold">{{ candidate.registration_no }}</span></p>
+            <p class="mb-1"><strong>Payment ID:</strong> {{ candidate.razorpay_payment_id }}</p>
+            <p class="mb-0"><strong>Status:</strong> <span class="badge bg-success">PAID</span></p>
+        </div>
+
+        <div class="d-grid gap-2">
+            <a href="{% url 'download_pdf' candidate.registration_no %}" class="btn btn-primary btn-lg">📥 Download PDF Application Slip</a>
+            <a href="{% url 'register' %}" class="btn btn-outline-secondary">Submit Another Application</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

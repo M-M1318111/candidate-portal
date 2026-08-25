@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Application Receipt - {{ candidate.registration_no }}</title>
+    <style>
+        @page { size: A4 portrait; margin: 8mm; }
+        * { box-sizing: border-box; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+        body {
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            font-size: 10.5px;
+            color: #1e293b;
+            background: #f8fafc;
+            margin: 0;
+            padding: 10px;
+        }
+        .no-print {
+            max-width: 820px;
+            margin: 0 auto 10px auto;
+            text-align: right;
+        }
+        .btn-print {
+            background: linear-gradient(135deg, #1e40af, #3b82f6);
+            color: white;
+            padding: 8px 18px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: bold;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 3px 8px rgba(37,99,235,0.3);
+        }
+        .btn-back {
+            background: #64748b;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 12px;
+            text-decoration: none;
+            margin-left: 8px;
+        }
+        .slip-container {
+            max-width: 820px;
+            margin: 0 auto;
+            background: #ffffff;
+            border: 2px solid #1e40af;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+        .slip-header {
+            background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 60%, #2563eb 100%);
+            color: white;
+            padding: 14px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .slip-header h1 {
+            margin: 0;
+            font-size: 17px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .slip-header p {
+            margin: 3px 0 0 0;
+            font-size: 11px;
+            color: #93c5fd;
+            font-weight: 500;
+        }
+        .badge-verified {
+            background: #10b981;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 10px;
+            font-weight: bold;
+            letter-spacing: 0.5px;
+        }
+        .slip-body { padding: 14px 18px; }
+
+        .meta-banner {
+            background: #f1f5f9;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            padding: 8px 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+        .meta-item span { display: block; font-size: 9.5px; color: #64748b; font-weight: bold; text-transform: uppercase; }
+        .meta-item strong { font-size: 14px; color: #1e3a8a; }
+        
+        .status-paid { color: #16a34a; font-weight: bold; }
+        .status-pending { color: #dc2626; font-weight: bold; }
+
+        .section-bar {
+            background: linear-gradient(90deg, #1e3a8a, #3b82f6);
+            color: white;
+            font-size: 10.5px;
+            font-weight: bold;
+            padding: 4px 8px;
+            border-radius: 4px;
+            margin: 10px 0 6px 0;
+            text-transform: uppercase;
+        }
+
+        table.grid-table {
+            width: 100%;
+            border-collapse: collapse;
+            table-layout: fixed;
+            margin-bottom: 8px;
+        }
+        table.grid-table th, table.grid-table td {
+            border: 1px solid #cbd5e1;
+            padding: 5px 8px;
+            font-size: 10px;
+            word-wrap: break-word;
+        }
+        table.grid-table th {
+            background: #f8fafc;
+            color: #475569;
+            font-weight: bold;
+            width: 20%;
+        }
+
+        .bio-section {
+            display: flex;
+            gap: 12px;
+            margin-top: 6px;
+        }
+        .bio-card {
+            flex: 1;
+            background: #f8fafc;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            padding: 6px;
+            text-align: center;
+        }
+        .bio-card img {
+            border-radius: 4px;
+            border: 1px solid #94a3b8;
+            background: white;
+        }
+
+        .slip-footer {
+            border-top: 1px dashed #cbd5e1;
+            margin-top: 12px;
+            padding-top: 6px;
+            font-size: 8.5px;
+            color: #64748b;
+            display: flex;
+            justify-content: space-between;
+        }
+        @media print {
+            .no-print { display: none !important; }
+            body { background: white; padding: 0; }
+            .slip-container { border: 2px solid #1e40af; box-shadow: none; border-radius: 0; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="no-print">
+    <button onclick="window.print()" class="btn-print">🖨️ Print Confirmation Slip</button>
+    <a href="{% url 'preview' candidate.registration_no %}" class="btn-back">Back to Portal</a>
+</div>
+
+<div class="slip-container">
+    
+    <div class="slip-header">
+        <div>
+            <h1>Central Examination Authority — 2026</h1>
+            <p>Candidate Registration Confirmation & Fee Ledger Receipt</p>
+        </div>
+        <span class="badge-verified">✓ SUBMISSION SUCCESSFUL</span>
+    </div>
+
+    <div class="slip-body">
+
+        <div class="meta-banner">
+            <div class="meta-item">
+                <span>Application Number</span>
+                <strong>{{ candidate.registration_no }}</strong>
+            </div>
+            <div class="meta-item">
+                <span>Allotted Roll Number</span>
+                <strong style="color: #059669;">{{ candidate.roll_number|default:"ALLOCATED" }}</strong>
+            </div>
+            <div class="meta-item">
+                <span>Fee Status</span>
+                {% if candidate.is_paid %}
+                    <strong class="status-paid">PAID (₹{{ candidate.fee_amount }})</strong>
+                {% else %}
+                    <strong class="status-pending">PENDING</strong>
+                {% endif %}
+            </div>
+            <div>
+                {% if qr_code_base64 %}
+                    <img src="data:image/png;base64,{{ qr_code_base64 }}" style="width: 48px; height: 48px; border: 1px solid #cbd5e1; padding: 2px; border-radius: 4px; background: white;">
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="section-bar">1. Personal & Identity Details</div>
+        <table class="grid-table">
+            <tr>
+                <th>Candidate Full Name</th>
+                <td><strong>{{ candidate.full_name }}</strong></td>
+                <th>Date of Birth</th>
+                <td>{{ candidate.dob }}</td>
+            </tr>
+            <tr>
+                <th>Father's Name</th>
+                <td>{{ candidate.father_name }}</td>
+                <th>Mother's Name</th>
+                <td>{{ candidate.mother_name|default:"Not Provided" }}</td>
+            </tr>
+            <tr>
+                <th>Gender / Category</th>
+                <td>{{ candidate.gender }} / <strong style="color: #1e3a8a;">{{ candidate.category }}</strong></td>
+                <th>Identity Document</th>
+                <td>Aadhaar Verified: <strong>{{ candidate.aadhaar_number }}</strong></td>
+            </tr>
+            <tr>
+                <th>Email Address</th>
+                <td>{{ candidate.email }}</td>
+                <th>Mobile Number</th>
+                <td>+91-{{ candidate.phone }}</td>
+            </tr>
+            <tr>
+                <th>Permanent Address</th>
+                <td colspan="3">{{ candidate.address }}</td>
+            </tr>
+        </table>
+
+        <div class="section-bar">2. Qualification & Exam City Preferences</div>
+        <table class="grid-table">
+            <tr>
+                <th>Qualifying Exam</th>
+                <td>{{ candidate.qualification_class }} (Passed: {{ candidate.passing_year }})</td>
+                <th>Score Summary</th>
+                <td><strong>{{ candidate.obtained_marks }} / {{ candidate.total_marks }} (<span style="color: #16a34a; font-weight: bold;">{{ candidate.percentage }}%</span>)</strong></td>
+            </tr>
+            <tr>
+                <th>Exam Center Pref 1</th>
+                <td colspan="3"><strong>1st Choice:</strong> {{ candidate.center_choice_1 }}</td>
+            </tr>
+            <tr>
+                <th>Center Pref 2 & 3</th>
+                <td colspan="3"><strong>2nd Choice:</strong> {{ candidate.center_choice_2 }} | <strong>3rd Choice:</strong> {{ candidate.center_choice_3 }}</td>
+            </tr>
+        </table>
+
+        <div class="section-bar">3. Uploaded Biometrics & Payment Details</div>
+        <div class="bio-section">
+            <div class="bio-card">
+                <span style="font-size: 9px; font-weight: bold; color: #475569; display: block; margin-bottom: 4px;">Candidate Photo</span>
+                {% if photo_base64 %}
+                    <img src="{{ photo_base64 }}" style="width: 75px; height: 90px; object-fit: cover;">
+                {% elif candidate.photo %}
+                    <img src="{{ candidate.photo.url }}" style="width: 75px; height: 90px; object-fit: cover;">
+                {% else %}
+                    <div style="height: 90px; display: flex; align-items: center; justify-content: center; color: #dc2626; font-size: 9px;">Photo Missing</div>
+                {% endif %}
+            </div>
+            <div class="bio-card">
+                <span style="font-size: 9px; font-weight: bold; color: #475569; display: block; margin-bottom: 4px;">Candidate Signature</span>
+                {% if signature_base64 %}
+                    <img src="{{ signature_base64 }}" style="width: 120px; height: 40px; object-fit: contain; margin-top: 25px;">
+                {% elif candidate.signature %}
+                    <img src="{{ candidate.signature.url }}" style="width: 120px; height: 40px; object-fit: contain; margin-top: 25px;">
+                {% else %}
+                    <div style="height: 90px; display: flex; align-items: center; justify-content: center; color: #dc2626; font-size: 9px;">Sign Missing</div>
+                {% endif %}
+            </div>
+            <div class="bio-card" style="display: flex; flex-direction: column; justify-content: center; text-align: left; padding: 10px;">
+                <span style="font-size: 9.5px; color: #64748b; font-weight: bold;">Transaction Reference:</span>
+                <span style="font-family: monospace; font-size: 11px; font-weight: bold; color: #1e3a8a;">{{ candidate.razorpay_payment_id|default:"OFFLINE_PROCESSED_OK" }}</span>
+                <span style="font-size: 9.5px; color: #64748b; font-weight: bold; margin-top: 6px;">Payment Date:</span>
+                <span style="font-size: 10px; font-weight: bold; color: #334155;">{{ candidate.created_at|date:"d M Y, h:i A" }}</span>
+            </div>
+        </div>
+
+        <div class="slip-footer">
+            <span>* System-generated valid electronic confirmation slip. No manual signature required.</span>
+            <span>Ref Hash: {{ candidate.registration_no }}-2026</span>
+        </div>
+
+    </div>
+</div>
+
+</body>
+</html>

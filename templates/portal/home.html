@@ -1,0 +1,264 @@
+{% extends 'portal/base.html' %}
+
+{% block title %}Central Examination Portal 2026 | National Gateway{% endblock %}
+
+{% block content %}
+<style>
+    /* Dynamic Mesh Background */
+    .hero-wrapper {
+        position: relative;
+        background: radial-gradient(circle at 20% 20%, rgba(99, 102, 241, 0.12) 0%, transparent 40%),
+                    radial-gradient(circle at 80% 80%, rgba(14, 165, 233, 0.12) 0%, transparent 40%),
+                    linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+        border-radius: 28px;
+        overflow: hidden;
+    }
+
+    /* Floating Animated Badges */
+    @keyframes float-slow {
+        0%, 100% { transform: translateY(0px); }
+        50% { transform: translateY(-8px); }
+    }
+    .floating-badge {
+        animation: float-slow 3.5s ease-in-out infinite;
+    }
+
+    /* Interactive Glow Cards */
+    .feature-box {
+        position: relative;
+        background: #ffffff;
+        border: 1.5px solid rgba(226, 232, 240, 0.9);
+        border-radius: 22px;
+        padding: 2rem 1.5rem;
+        transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+        overflow: hidden;
+        z-index: 1;
+    }
+    .feature-box::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 4px;
+        background: var(--gradient-main);
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+    .feature-box:hover {
+        transform: translateY(-10px) scale(1.02);
+        box-shadow: 0 20px 35px -8px rgba(37, 99, 235, 0.12);
+        border-color: rgba(99, 102, 241, 0.35);
+    }
+    .feature-box:hover::before {
+        opacity: 1;
+    }
+
+    /* Icon Glow Bounce */
+    .icon-wrapper {
+        width: 68px;
+        height: 68px;
+        border-radius: 18px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1.25rem auto;
+        transition: all 0.35s ease;
+    }
+    .feature-box:hover .icon-wrapper {
+        transform: rotate(6deg) scale(1.1);
+    }
+
+    /* Live Ticker Pulse */
+    .pulse-dot {
+        width: 10px;
+        height: 10px;
+        background-color: #ef4444;
+        border-radius: 50%;
+        display: inline-block;
+        box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
+        animation: pulse-red 1.6s infinite;
+    }
+    @keyframes pulse-red {
+        0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+        70% { transform: scale(1); box-shadow: 0 0 0 8px rgba(239, 68, 68, 0); }
+        100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+    }
+
+    /* Step Timeline Node */
+    .step-pill {
+        background: #ffffff;
+        border: 1px dashed #cbd5e1;
+        border-radius: 16px;
+        padding: 1.2rem;
+        transition: all 0.3s ease;
+    }
+    .step-pill:hover {
+        border-color: #6366f1;
+        background: #fdfefe;
+        transform: translateY(-3px);
+    }
+</style>
+
+<div class="container my-4 my-md-5">
+
+    <!-- Live Announcement Bar -->
+    <div class="card border-0 shadow-sm rounded-4 mb-4 p-2 px-3 bg-white d-flex flex-row align-items-center justify-content-between flex-wrap gap-2" data-aos="fade-down">
+        <div class="d-flex align-items-center gap-2">
+            <span class="pulse-dot"></span>
+            <span class="badge bg-danger text-white rounded-pill px-2 py-1 small fw-bold">LIVE NOTICE</span>
+            <span class="small fw-semibold text-secondary">
+                Online registration window for CBT Session 2026-27 is now open. Verify details before fee payment.
+            </span>
+        </div>
+        <a href="{% url 'register' %}" class="btn btn-sm btn-link text-primary text-decoration-none fw-bold p-0">
+            Apply Now <i class="bi bi-arrow-right"></i>
+        </a>
+    </div>
+
+    <!-- Hero Section -->
+    <div class="hero-wrapper p-4 p-md-5 mb-5 border shadow-sm" data-aos="zoom-in">
+        <div class="row align-items-center justify-content-center text-center">
+            <div class="col-lg-10">
+                
+                <div class="floating-badge mb-3">
+                    <span class="badge badge-pulse px-3 py-2 rounded-pill fw-bold fs-6">
+                        <i class="bi bi-shield-fill-check me-1"></i> Central Examination Authority • 2026
+                    </span>
+                </div>
+
+                <h1 class="display-4 fw-bold font-display text-dark mb-3">
+                    Unified Candidate <span class="text-gradient">Registration & Examination</span> Portal
+                </h1>
+                
+                <p class="fs-5 text-muted col-md-10 mx-auto mb-4 lh-base">
+                    Single-window digital gateway for authentic application submission, instant fee settlement, biometric verification, and automated e-hall ticket issuance.
+                </p>
+
+                <div class="d-flex justify-content-center gap-3 flex-wrap">
+                    <a href="{% url 'register' %}" class="btn btn-modern btn-lg px-4 py-3 shadow">
+                        <i class="bi bi-pencil-fill me-2"></i> New Registration
+                    </a>
+                    <a href="{% url 'candidate_login' %}" class="btn btn-outline-dark btn-lg px-4 py-3 rounded-3 fw-semibold">
+                        <i class="bi bi-person-badge-fill me-2"></i> Candidate Login
+                    </a>
+                    <a href="{% url 'track_status' %}" class="btn btn-light btn-lg px-4 py-3 border rounded-3 fw-semibold text-secondary">
+                        <i class="bi bi-search me-2"></i> Track Application
+                    </a>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- 4 Primary Interactive Animated Cards -->
+    <div class="row g-4 text-center mb-5">
+        
+        <!-- Card 1: Registration -->
+        <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-delay="100">
+            <div class="feature-box h-100 d-flex flex-column justify-content-between">
+                <div>
+                    <div class="icon-wrapper bg-primary-subtle text-primary">
+                        <i class="bi bi-journal-plus fs-2"></i>
+                    </div>
+                    <h5 class="fw-bold mb-2 font-display text-dark">1. Online Application</h5>
+                    <p class="small text-muted mb-4">Submit qualification scores, upload documents, and choose test cities.</p>
+                </div>
+                <a href="{% url 'register' %}" class="btn btn-outline-primary btn-sm rounded-pill fw-semibold py-2">
+                    Start Form <i class="bi bi-arrow-up-right ms-1"></i>
+                </a>
+            </div>
+        </div>
+
+        <!-- Card 2: Status Tracking -->
+        <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-delay="200">
+            <div class="feature-box h-100 d-flex flex-column justify-content-between">
+                <div>
+                    <div class="icon-wrapper bg-info-subtle text-info">
+                        <i class="bi bi-radar fs-2"></i>
+                    </div>
+                    <h5 class="fw-bold mb-2 font-display text-dark">2. Real-Time Status</h5>
+                    <p class="small text-muted mb-4">Check transaction confirmations, application lock, and verification status.</p>
+                </div>
+                <a href="{% url 'track_status' %}" class="btn btn-outline-info btn-sm rounded-pill fw-semibold py-2">
+                    Track Record <i class="bi bi-arrow-up-right ms-1"></i>
+                </a>
+            </div>
+        </div>
+
+        <!-- Card 3: Admit Card -->
+        <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-delay="300">
+            <div class="feature-box h-100 d-flex flex-column justify-content-between">
+                <div>
+                    <div class="icon-wrapper bg-success-subtle text-success">
+                        <i class="bi bi-qr-code-scan fs-2"></i>
+                    </div>
+                    <h5 class="fw-bold mb-2 font-display text-dark">3. E-Hall Ticket</h5>
+                    <p class="small text-muted mb-4">Download official CBT admit card with electronic verification barcode.</p>
+                </div>
+                <a href="{% url 'candidate_login' %}" class="btn btn-outline-success btn-sm rounded-pill fw-semibold py-2">
+                    Get Admit Card <i class="bi bi-arrow-up-right ms-1"></i>
+                </a>
+            </div>
+        </div>
+
+        <!-- Card 4: Helpdesk -->
+        <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-delay="400">
+            <div class="feature-box h-100 d-flex flex-column justify-content-between">
+                <div>
+                    <div class="icon-wrapper bg-danger-subtle text-danger">
+                        <i class="bi bi-headset fs-2"></i>
+                    </div>
+                    <h5 class="fw-bold mb-2 font-display text-dark">4. Grievance Desk</h5>
+                    <p class="small text-muted mb-4">Raise support tickets for transaction disputes or correction requests.</p>
+                </div>
+                <a href="{% url 'helpdesk' %}" class="btn btn-outline-danger btn-sm rounded-pill fw-semibold py-2">
+                    Raise Ticket <i class="bi bi-arrow-up-right ms-1"></i>
+                </a>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Application Lifecycle Steps -->
+    <div class="card card-stylish p-4 p-md-5 mb-4" data-aos="fade-up">
+        <div class="text-center mb-4">
+            <span class="badge bg-primary-subtle text-primary px-3 py-1 rounded-pill fw-semibold small">Workflow Guide</span>
+            <h3 class="fw-bold font-display text-dark mt-2 mb-1">Simple 4-Step Registration Process</h3>
+            <p class="text-muted small">Follow these steps to successfully complete your examination registration.</p>
+        </div>
+
+        <div class="row g-3 text-center">
+            <div class="col-md-3 col-6">
+                <div class="step-pill h-100">
+                    <span class="badge bg-primary text-white rounded-circle p-2 mb-2">01</span>
+                    <h6 class="fw-bold mb-1">Fill Details</h6>
+                    <p class="small text-muted mb-0">Personal, Academic & Center preferences.</p>
+                </div>
+            </div>
+            <div class="col-md-3 col-6">
+                <div class="step-pill h-100">
+                    <span class="badge bg-info text-white rounded-circle p-2 mb-2">02</span>
+                    <h6 class="fw-bold mb-1">Upload Proofs</h6>
+                    <p class="small text-muted mb-0">Photograph, signature and ID document.</p>
+                </div>
+            </div>
+            <div class="col-md-3 col-6">
+                <div class="step-pill h-100">
+                    <span class="badge bg-warning text-dark rounded-circle p-2 mb-2">03</span>
+                    <h6 class="fw-bold mb-1">Fee Checkout</h6>
+                    <p class="small text-muted mb-0">Instant online payment gateway.</p>
+                </div>
+            </div>
+            <div class="col-md-3 col-6">
+                <div class="step-pill h-100">
+                    <span class="badge bg-success text-white rounded-circle p-2 mb-2">04</span>
+                    <h6 class="fw-bold mb-1">Download Slip</h6>
+                    <p class="small text-muted mb-0">Print application slip and admit card.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

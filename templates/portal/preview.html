@@ -1,0 +1,179 @@
+{% extends 'portal/base.html' %}
+
+{% block title %}Application Preview - {{ candidate.registration_no }}{% endblock %}
+
+{% block content %}
+<div class="container my-4">
+    <div class="card shadow-sm p-4 mx-auto" style="max-width: 850px; border-radius: 10px;">
+        
+        <!-- Header & Status Badge -->
+        <div class="d-flex justify-content-between align-items-center border-bottom pb-3 mb-4">
+            <div>
+                <h3 class="fw-bold mb-0 text-primary">Application Preview</h3>
+                <span class="text-muted small">Registration No: <strong>{{ candidate.registration_no }}</strong></span>
+            </div>
+            <div>
+                {% if candidate.is_paid %}
+                    <span class="badge bg-success fs-6 px-3 py-2">Status: PAID</span>
+                {% else %}
+                    <span class="badge bg-warning text-dark fs-6 px-3 py-2">Status: PENDING PAYMENT</span>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Section 1: Personal Details -->
+        <h5 class="text-secondary fw-bold mb-3">1. Personal Information</h5>
+        <div class="table-responsive mb-4">
+            <table class="table table-bordered table-sm mb-0">
+                <tbody>
+                    <tr>
+                        <th class="bg-light" style="width: 25%;">Full Name</th>
+                        <td>{{ candidate.full_name }}</td>
+                        <th class="bg-light" style="width: 25%;">Date of Birth</th>
+                        <td>{{ candidate.dob }}</td>
+                    </tr>
+                    <tr>
+                        <th class="bg-light">Father's Name</th>
+                        <td>{{ candidate.father_name }}</td>
+                        <th class="bg-light">Mother's Name</th>
+                        <td>{{ candidate.mother_name|default:"Not Provided" }}</td>
+                    </tr>
+                    <tr>
+                        <th class="bg-light">Gender</th>
+                        <td>{{ candidate.gender }}</td>
+                        <th class="bg-light">Category</th>
+                        <td><strong>{{ candidate.category }}</strong></td>
+                    </tr>
+                    <tr>
+                        <th class="bg-light">Identity Document</th>
+                        <td colspan="3">Aadhaar Card [Verified]</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Section 2: Contact Details -->
+        <h5 class="text-secondary fw-bold mb-3">2. Contact Details</h5>
+        <div class="table-responsive mb-4">
+            <table class="table table-bordered table-sm mb-0">
+                <tbody>
+                    <tr>
+                        <th class="bg-light" style="width: 25%;">Email Address</th>
+                        <td>{{ candidate.email }}</td>
+                        <th class="bg-light" style="width: 25%;">Phone Number</th>
+                        <td>+91-{{ candidate.phone }}</td>
+                    </tr>
+                    <tr>
+                        <th class="bg-light">Permanent Address</th>
+                        <td colspan="3">{{ candidate.address }}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Section 3: Educational Qualifications & Centers -->
+        <h5 class="text-secondary fw-bold mb-3">3. Educational & Exam Center Preferences</h5>
+        <div class="table-responsive mb-4">
+            <table class="table table-bordered table-sm mb-0">
+                <tbody>
+                    <tr>
+                        <th class="bg-light" style="width: 25%;">Class / Exam</th>
+                        <td>{{ candidate.qualification_class }}</td>
+                        <th class="bg-light" style="width: 25%;">Passing Year</th>
+                        <td>{{ candidate.passing_year }}</td>
+                    </tr>
+                    <tr>
+                        <th class="bg-light">Score Details</th>
+                        <td colspan="3">
+                            Marks: <strong>{{ candidate.obtained_marks }} / {{ candidate.total_marks }}</strong> 
+                            (Percentage: <strong class="text-success">{{ candidate.percentage }}%</strong>)
+                        </td>
+                    </tr>
+                    <tr>
+                        <th class="bg-light">Center Choices</th>
+                        <td colspan="3">
+                            1. <strong>{{ candidate.center_choice_1 }}</strong> | 
+                            2. <strong>{{ candidate.center_choice_2 }}</strong> | 
+                            3. <strong>{{ candidate.center_choice_3 }}</strong>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Section 4: Documents Uploaded -->
+        <h5 class="text-secondary fw-bold mb-3">4. Uploaded Documents</h5>
+        <div class="row g-3 mb-4">
+            <div class="col-md-6 text-center">
+                <div class="border p-2 rounded bg-light">
+                    <p class="small text-muted mb-2 fw-bold">Candidate Photo</p>
+                    {% if candidate.photo %}
+                        <img src="{{ candidate.photo.url }}" alt="Candidate Photo" class="img-thumbnail" style="max-height: 120px; object-fit: contain;">
+                    {% else %}
+                        <span class="text-danger small">No photo uploaded</span>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="col-md-6 text-center">
+                <div class="border p-2 rounded bg-light">
+                    <p class="small text-muted mb-2 fw-bold">Candidate Signature</p>
+                    {% if candidate.signature %}
+                        <img src="{{ candidate.signature.url }}" alt="Candidate Signature" class="img-thumbnail" style="max-height: 120px; object-fit: contain;">
+                    {% else %}
+                        <span class="text-danger small">No signature uploaded</span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 5: Fee & Smart Action Buttons -->
+        <div class="d-flex justify-content-between align-items-center pt-3 border-top">
+            {% if not candidate.is_paid %}
+                <a href="{% url 'edit_candidate' candidate.registration_no %}" class="btn btn-outline-warning px-4 fw-semibold">
+                    ✏️ Edit Application
+                </a>
+
+                {% if is_mock_mode %}
+                    <!-- Mode 1: Test / Mock Mode -->
+                    <form action="{{ callback_url }}" method="POST" class="m-0">
+                        {% csrf_token %}
+                        <input type="hidden" name="razorpay_payment_id" value="MOCK-PAY-{{ candidate.registration_no }}">
+                        <button type="submit" class="btn btn-success btn-lg px-4 fw-semibold shadow-sm">
+                            💳 Pay ₹{{ exam_fee }} (Test Instant Pay)
+                        </button>
+                    </form>
+                {% else %}
+                    <!-- Mode 2: Real Razorpay Gateway Mode -->
+                    <form action="{{ callback_url }}" method="POST" class="m-0">
+                        {% csrf_token %}
+                        <script
+                            src="https://checkout.razorpay.com/v1/checkout.js"
+                            data-key="{{ razorpay_merchant_key }}"
+                            data-amount="{{ amount }}"
+                            data-currency="{{ currency }}"
+                            data-order_id="{{ razorpay_order_id }}"
+                            data-buttontext="Pay ₹{{ exam_fee }} & Submit"
+                            data-name="Candidate Registration Portal"
+                            data-description="Application Registration Fee"
+                            data-prefill.name="{{ candidate.full_name }}"
+                            data-prefill.email="{{ candidate.email }}"
+                            data-prefill.contact="{{ candidate.phone }}"
+                            data-theme.color="#0d6efd">
+                        </script>
+                    </form>
+                {% endif %}
+            {% else %}
+                <div class="d-flex gap-2">
+                    <a href="{% url 'download_pdf' candidate.registration_no %}" class="btn btn-primary px-3">
+                        📄 Download Application Slip
+                    </a>
+                    <a href="{% url 'download_admit_card' candidate.registration_no %}" class="btn btn-success px-3">
+                        🎟️ Download Admit Card
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+
+    </div>
+</div>
+{% endblock %}

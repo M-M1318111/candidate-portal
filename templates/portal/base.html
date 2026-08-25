@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Central Examination Portal 2026{% endblock %}</title>
+    
+    <!-- Fonts & Icons -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary: #4338ca;
+            --primary-dark: #312e81;
+            --secondary: #0ea5e9;
+            --dark-bg: #0f172a;
+            --card-border: rgba(226, 232, 240, 0.8);
+            --gradient-main: linear-gradient(135deg, #4338ca 0%, #2563eb 50%, #0ea5e9 100%);
+            --gradient-accent: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
+            color: #1e293b;
+            overflow-x: hidden;
+        }
+
+        /* Glassmorphism Navbar */
+        .glass-nav {
+            background: rgba(15, 23, 42, 0.9) !important;
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        /* Modern Typography */
+        .font-display {
+            font-family: 'Space Grotesk', sans-serif;
+            letter-spacing: -0.03em;
+        }
+
+        /* Gradient Glow & Badges */
+        .text-gradient {
+            background: var(--gradient-main);
+            -webkit-background-clip: text;
+             background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .badge-pulse {
+            background: rgba(14, 165, 233, 0.15);
+            color: #0284c7;
+            border: 1px solid rgba(14, 165, 233, 0.3);
+            animation: pulse-glow 2s infinite ease-in-out;
+        }
+
+        @keyframes pulse-glow {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(14, 165, 233, 0.4); }
+            50% { box-shadow: 0 0 0 8px rgba(14, 165, 233, 0); }
+        }
+
+        /* Modern Form Inputs Focus Effects */
+        .form-control, .form-select {
+            border: 1.5px solid #cbd5e1;
+            padding: 0.65rem 0.95rem;
+            border-radius: 10px;
+            font-size: 0.92rem;
+            transition: all 0.25s ease;
+            background-color: #f8fafc;
+        }
+
+        .form-control:focus, .form-select:focus {
+            background-color: #ffffff;
+            border-color: #6366f1;
+            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.15);
+            transform: translateY(-1px);
+        }
+
+        .input-group-text {
+            border: 1.5px solid #cbd5e1;
+            border-right: none;
+            background-color: #f1f5f9;
+            border-radius: 10px 0 0 10px;
+            color: #64748b;
+        }
+
+        .input-group .form-control {
+            border-radius: 0 10px 10px 0;
+        }
+
+        /* Floating Shadow Cards */
+        .card-stylish {
+            background: #ffffff;
+            border: 1px solid var(--card-border);
+            border-radius: 20px;
+            box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.05), 0 8px 10px -6px rgba(15, 23, 42, 0.03);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card-stylish:hover {
+            box-shadow: 0 20px 35px -5px rgba(15, 23, 42, 0.09);
+        }
+
+        /* Premium Buttons */
+        .btn-modern {
+            background: var(--gradient-main);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            padding: 0.65rem 1.4rem;
+            font-weight: 600;
+            transition: all 0.25s ease;
+        }
+
+        .btn-modern:hover {
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px -3px rgba(37, 99, 235, 0.4);
+        }
+    </style>
+</head>
+<body class="d-flex flex-column min-vh-100">
+
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark glass-nav sticky-top py-3">
+        <div class="container">
+            <a class="navbar-brand fw-bold font-display d-flex align-items-center gap-2 text-white" href="{% url 'home' %}">
+                <div class="rounded-3 p-1 d-flex align-items-center justify-content-center" style="background: var(--gradient-main); width: 34px; height: 34px;">
+                    <i class="bi bi-mortarboard-fill text-white fs-6"></i>
+                </div>
+                <span>NTA<span class="text-info">PORTAL</span></span>
+            </a>
+            <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto gap-lg-2 align-items-lg-center">
+                    <li class="nav-item">
+                        <a class="nav-link text-white-50 px-2 fw-medium" href="{% url 'home' %}"><i class="bi bi-house me-1"></i> Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-white-50 px-2 fw-medium" href="{% url 'register' %}"><i class="bi bi-pencil-square me-1"></i> Apply Online</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-white-50 px-2 fw-medium" href="{% url 'track_status' %}"><i class="bi bi-radar me-1"></i> Track</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-white-50 px-2 fw-medium" href="{% url 'helpdesk' %}"><i class="bi bi-headset me-1"></i> Helpdesk</a>
+                    </li>
+                    <li class="nav-item ms-lg-3 mt-2 mt-lg-0">
+                        <a class="btn btn-outline-light btn-sm px-3 rounded-3 fw-semibold" href="{% url 'candidate_login' %}">
+                            <i class="bi bi-box-arrow-in-right me-1"></i> Candidate Login
+                        </a>
+                    </li>
+                    <li class="nav-item ms-lg-1 mt-2 mt-lg-0">
+                        <a class="btn btn-warning btn-sm px-3 rounded-3 fw-semibold text-dark shadow-sm" href="/admin/" target="_blank">
+                            <i class="bi bi-shield-lock me-1"></i> Admin
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Dynamic Body -->
+    <main class="flex-grow-1">
+        {% block content %}
+        {% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-top py-4 text-center text-muted small mt-auto">
+        <div class="container d-flex flex-wrap justify-content-between align-items-center">
+            <span>© 2026 Examination Services Portal. ISO 27001 Certified System.</span>
+            <div class="d-flex gap-3 mt-2 mt-sm-0">
+                <a href="{% url 'helpdesk' %}" class="text-decoration-none text-muted"><i class="bi bi-shield-check text-success me-1"></i>Security</a>
+                <a href="{% url 'track_status' %}" class="text-decoration-none text-muted"><i class="bi bi-speedometer2 text-primary me-1"></i>Status Engine</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script>
+        AOS.init({ duration: 600, once: true, easing: 'ease-out-quad' });
+    </script>
+</body>
+</html>

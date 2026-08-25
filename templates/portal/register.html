@@ -1,0 +1,323 @@
+{% extends 'portal/base.html' %}
+
+{% block title %}{% if edit_mode %}Update Details{% else %}Online Registration{% endif %} - Central Examination Portal{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="card card-stylish mx-auto overflow-hidden" style="max-width: 950px;" data-aos="fade-up">
+        
+        <!-- Header Banner -->
+        <div class="p-4 p-md-5 text-white position-relative" style="background: var(--gradient-main);">
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+                <div>
+                    <span class="badge bg-white text-primary px-3 py-1 rounded-pill fw-bold mb-2">
+                        <i class="bi bi-award-fill me-1 text-warning"></i> National CBT Portal 2026
+                    </span>
+                    <h2 class="font-display fw-bold mb-1">
+                        {% if edit_mode %}Modify Candidate Application{% else %}Candidate Online Registration{% endif %}
+                    </h2>
+                    <p class="mb-0 text-white-50 small">Fill the required authentication and qualification details accurately.</p>
+                </div>
+                <div class="d-none d-md-block text-end">
+                    <div class="fs-1 text-white opacity-25"><i class="bi bi-journal-check"></i></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="p-4 p-md-5 bg-white">
+            
+            <!-- Modern Stepper Indicator -->
+            <div class="row g-2 mb-5 text-center">
+                <div class="col-3">
+                    <div class="p-2 rounded-4 border bg-light text-primary border-primary fw-semibold small">
+                        <i class="bi bi-person-bounding-box d-block fs-5 mb-1"></i> Personal
+                    </div>
+                </div>
+                <div class="col-3">
+                    <div class="p-2 rounded-4 border bg-light text-muted fw-semibold small">
+                        <i class="bi bi-envelope-at d-block fs-5 mb-1"></i> Contact
+                    </div>
+                </div>
+                <div class="col-3">
+                    <div class="p-2 rounded-4 border bg-light text-muted fw-semibold small">
+                        <i class="bi bi-building-check d-block fs-5 mb-1"></i> Exam Center
+                    </div>
+                </div>
+                <div class="col-3">
+                    <div class="p-2 rounded-4 border bg-light text-muted fw-semibold small">
+                        <i class="bi bi-file-earmark-arrow-up d-block fs-5 mb-1"></i> Uploads
+                    </div>
+                </div>
+            </div>
+
+            <!-- Error Notification -->
+            {% if form.errors %}
+                <div class="alert alert-danger rounded-4 p-3 mb-4 shadow-sm" data-aos="shake">
+                    <div class="d-flex align-items-center mb-1 fw-bold">
+                        <i class="bi bi-exclamation-octagon-fill me-2 fs-5"></i> Please correct the required fields:
+                    </div>
+                    <ul class="mb-0 small ps-3">
+                        {% for field in form %}
+                            {% for error in field.errors %}
+                                <li><strong>{{ field.label }}:</strong> {{ error }}</li>
+                            {% endfor %}
+                        {% endfor %}
+                    </ul>
+                </div>
+            {% endif %}
+
+            <form method="POST" enctype="multipart/form-data" id="candidateRegistrationForm">
+                {% csrf_token %}
+
+                <!-- Section 1: Personal Details -->
+                <div class="mb-5">
+                    <div class="d-flex align-items-center gap-2 border-bottom pb-2 mb-4">
+                        <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center" style="width: 28px; height: 28px; font-size: 13px;">1</div>
+                        <h5 class="fw-bold mb-0 text-dark font-display">Personal Identification</h5>
+                    </div>
+
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold small text-muted">Full Legal Name <span class="text-danger">*</span></label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="bi bi-person"></i></span>
+                                {{ form.full_name }}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold small text-muted">Date of Birth <span class="text-danger">*</span></label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="bi bi-calendar3"></i></span>
+                                {{ form.dob }}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold small text-muted">Father's Name <span class="text-danger">*</span></label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="bi bi-person-badge"></i></span>
+                                {{ form.father_name }}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold small text-muted">Mother's Name <span class="text-danger">*</span></label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="bi bi-person-heart"></i></span>
+                                {{ form.mother_name }}
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold small text-muted">Gender <span class="text-danger">*</span></label>
+                            {{ form.gender }}
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold small text-muted">Category <span class="text-danger">*</span></label>
+                            {{ form.category }}
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold small text-muted">Identity ID Number <span class="text-danger">*</span></label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="bi bi-card-text"></i></span>
+                                {{ form.aadhaar_number }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section 2: Contact Details -->
+                <div class="mb-5">
+                    <div class="d-flex align-items-center gap-2 border-bottom pb-2 mb-4">
+                        <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center" style="width: 28px; height: 28px; font-size: 13px;">2</div>
+                        <h5 class="fw-bold mb-0 text-dark font-display">Communication Address</h5>
+                    </div>
+
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold small text-muted">Email Address <span class="text-danger">*</span></label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="bi bi-envelope"></i></span>
+                                {{ form.email }}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold small text-muted">Mobile Number <span class="text-danger">*</span></label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="bi bi-phone"></i></span>
+                                {{ form.phone }}
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label fw-semibold small text-muted">Permanent Address <span class="text-danger">*</span></label>
+                            {{ form.address }}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section 3: Academic Details & Center Preferences -->
+                <div class="mb-5">
+                    <div class="d-flex align-items-center gap-2 border-bottom pb-2 mb-4">
+                        <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center" style="width: 28px; height: 28px; font-size: 13px;">3</div>
+                        <h5 class="fw-bold mb-0 text-dark font-display">Qualifications & Preferred Centers</h5>
+                    </div>
+
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold small text-muted">Qualifying Exam <span class="text-danger">*</span></label>
+                            {{ form.qualification_class }}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold small text-muted">Passing Year <span class="text-danger">*</span></label>
+                            {{ form.passing_year }}
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold small text-muted">Total Maximum Marks <span class="text-danger">*</span></label>
+                            {{ form.total_marks }}
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold small text-muted">Marks Obtained <span class="text-danger">*</span></label>
+                            {{ form.obtained_marks }}
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold small text-muted">Calculated Percentage</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light text-success fw-bold">%</span>
+                                <input type="text" id="percentagePreview" class="form-control bg-light fw-bold text-success" readonly placeholder="0.00%">
+                            </div>
+                        </div>
+
+                        <!-- 3 Choices -->
+                        <div class="col-md-4 mt-3">
+                            <label class="form-label fw-semibold small text-muted">Test Center Choice 1 <span class="text-danger">*</span></label>
+                            {{ form.center_choice_1 }}
+                        </div>
+                        <div class="col-md-4 mt-3">
+                            <label class="form-label fw-semibold small text-muted">Test Center Choice 2 <span class="text-danger">*</span></label>
+                            {{ form.center_choice_2 }}
+                        </div>
+                        <div class="col-md-4 mt-3">
+                            <label class="form-label fw-semibold small text-muted">Test Center Choice 3 <span class="text-danger">*</span></label>
+                            {{ form.center_choice_3 }}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section 4: Document Dropzones -->
+                <div class="mb-5">
+                    <div class="d-flex align-items-center gap-2 border-bottom pb-2 mb-4">
+                        <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center" style="width: 28px; height: 28px; font-size: 13px;">4</div>
+                        <h5 class="fw-bold mb-0 text-dark font-display">Document Uploads</h5>
+                    </div>
+
+                    <div class="row g-4">
+                        <!-- Photo -->
+                        <div class="col-md-4">
+                            <div class="p-3 border rounded-4 bg-light text-center h-100 d-flex flex-column justify-content-between">
+                                <div>
+                                    <span class="badge bg-secondary mb-2">Photo Proof</span>
+                                    <div class="mb-2 mx-auto d-flex align-items-center justify-content-center bg-white border rounded-3 shadow-sm" style="height: 130px; width: 110px; overflow: hidden;">
+                                        <img id="photoPreview" src="{% if form.instance.photo %}{{ form.instance.photo.url }}{% else %}https://placehold.co/110x130/e2e8f0/475569?text=Photo{% endif %}" class="img-fluid" style="object-fit: cover; width: 100%; height: 100%;">
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="small text-muted mb-2">JPG/PNG (Max 200KB)</div>
+                                    {{ form.photo }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Signature -->
+                        <div class="col-md-4">
+                            <div class="p-3 border rounded-4 bg-light text-center h-100 d-flex flex-column justify-content-between">
+                                <div>
+                                    <span class="badge bg-secondary mb-2">Signature Proof</span>
+                                    <div class="mb-2 mx-auto d-flex align-items-center justify-content-center bg-white border rounded-3 shadow-sm" style="height: 130px; width: 180px; overflow: hidden;">
+                                        <img id="sigPreview" src="{% if form.instance.signature %}{{ form.instance.signature.url }}{% else %}https://placehold.co/180x130/e2e8f0/475569?text=Signature{% endif %}" class="img-fluid" style="object-fit: contain; width: 100%; height: 100%;">
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="small text-muted mb-2">JPG/PNG (Max 100KB)</div>
+                                    {{ form.signature }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Doc -->
+                        <div class="col-md-4">
+                            <div class="p-3 border rounded-4 bg-light text-center h-100 d-flex flex-column justify-content-between">
+                                <div>
+                                    <span class="badge bg-secondary mb-2">Identity Proof</span>
+                                    <div class="mb-2 mx-auto d-flex align-items-center justify-content-center bg-white border rounded-3 shadow-sm" style="height: 130px; width: 180px;">
+                                        <div class="p-2 text-center text-muted">
+                                            <i class="bi bi-file-earmark-check text-primary fs-1 d-block"></i>
+                                            <span class="small fw-semibold">Identity Document</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="small text-muted mb-2">PDF/JPG (Max 500KB)</div>
+                                    {{ form.aadhaar_doc }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Footer -->
+                <div class="d-flex justify-content-between align-items-center pt-4 border-top">
+                    <a href="{% url 'home' %}" class="btn btn-light px-4 fw-semibold border rounded-3">
+                        <i class="bi bi-arrow-left me-1"></i> Cancel
+                    </a>
+                    <button type="submit" class="btn btn-modern px-5 shadow">
+                        {% if edit_mode %}Save & Review Changes{% else %}Proceed to Application Preview <i class="bi bi-arrow-right ms-2"></i>{% endif %}
+                    </button>
+                </div>
+
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Live Percentage Calculator
+    function calcPercentage() {
+        const totalInput = document.querySelector('input[name="total_marks"]');
+        const obtainInput = document.querySelector('input[name="obtained_marks"]');
+        const preview = document.getElementById('percentagePreview');
+
+        if (totalInput && obtainInput && preview) {
+            const total = parseFloat(totalInput.value);
+            const obtain = parseFloat(obtainInput.value);
+
+            if (!isNaN(total) && !isNaN(obtain) && total > 0 && obtain <= total) {
+                const perc = ((obtain / total) * 100).toFixed(2);
+                preview.value = perc + '%';
+            } else {
+                preview.value = '';
+            }
+        }
+    }
+
+    const tInput = document.querySelector('input[name="total_marks"]');
+    const oInput = document.querySelector('input[name="obtained_marks"]');
+    if (tInput) tInput.addEventListener('input', calcPercentage);
+    if (oInput) oInput.addEventListener('input', calcPercentage);
+
+    // Instant Image Previews
+    function bindPreview(inputSelector, previewId) {
+        const input = document.querySelector(inputSelector);
+        const img = document.getElementById(previewId);
+        if (input && img) {
+            input.addEventListener('change', function(e) {
+                if (e.target.files && e.target.files[0]) {
+                    const reader = new FileReader();
+                    reader.onload = (event) => img.src = event.target.result;
+                    reader.readAsDataURL(e.target.files[0]);
+                }
+            });
+        }
+    }
+
+    bindPreview('input[name="photo"]', 'photoPreview');
+    bindPreview('input[name="signature"]', 'sigPreview');
+    calcPercentage();
+</script>
+{% endblock %}

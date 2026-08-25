@@ -1,0 +1,39 @@
+# Environment & Secret Keys
+.env
+.env.local
+.env.*.local
+
+# Database
+*.sqlite3
+db.sqlite3
+db.sqlite3-journal
+
+# User Uploaded Media Files (Photos, Signatures)
+media/
+staticfiles/
+
+# Database Backups
+backups/
+
+# Python cache & compiled files
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Virtual Environment
+venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+
+# IDE & Editor files
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# OS specific files
+.DS_Store
+Thumbs.db

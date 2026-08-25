@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        @page { size: A4; margin: 1.5cm; }
+        body { font-family: Helvetica, Arial, sans-serif; font-size: 12px; color: #333; }
+        .header { text-align: center; border-bottom: 2px solid #000; padding-bottom: 10px; margin-bottom: 15px; }
+        .header h2 { margin: 0; font-size: 18px; text-transform: uppercase; }
+        .header p { margin: 4px 0 0 0; font-size: 11px; color: #555; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { border: 1px solid #ccc; padding: 6px 8px; text-align: left; }
+        th { background-color: #f2f2f2; width: 35%; }
+        .section-head { background-color: #e9ecef; font-weight: bold; padding: 5px 8px; margin-top: 12px; border: 1px solid #ccc; }
+        .footer { margin-top: 30px; text-align: right; font-size: 10px; }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <h2>Candidate Registration Portal</h2>
+    <p>Official Application Acknowledgment Receipt</p>
+</div>
+
+<p><strong>Registration No:</strong> {{ candidate.registration_no }} &nbsp;&nbsp;|&nbsp;&nbsp; <strong>Date:</strong> {{ candidate.created_at|date:"d M Y" }}</p>
+
+<div class="section-head">1. Personal & Contact Details</div>
+<table>
+    <tr><th>Full Name</th><td>{{ candidate.full_name }}</td></tr>
+    <tr><th>Father's Name</th><td>{{ candidate.father_name }}</td></tr>
+    <tr><th>Mother's Name</th><td>{{ candidate.mother_name }}</td></tr>
+    <tr><th>Date of Birth</th><td>{{ candidate.dob }}</td></tr>
+    <tr><th>Gender / Category</th><td>{{ candidate.gender }} / {{ candidate.category }}</td></tr>
+    <tr><th>Email Address</th><td>{{ candidate.email }}</td></tr>
+    <tr><th>Mobile Number</th><td>{{ candidate.phone }}</td></tr>
+    <tr><th>Address</th><td>{{ candidate.address }}</td></tr>
+</table>
+
+<div class="section-head">2. Educational Details</div>
+<table>
+    <tr><th>Class / Examination</th><td>{{ candidate.qualification_class }}</td></tr>
+    <tr><th>Passing Year</th><td>{{ candidate.passing_year }}</td></tr>
+    <tr><th>Marks (Obtained / Total)</th><td>{{ candidate.obtained_marks }} / {{ candidate.total_marks }}</td></tr>
+    <tr><th>Calculated Percentage</th><td><strong>{{ candidate.percentage }}%</strong></td></tr>
+</table>
+
+<div class="section-head">3. Payment Information</div>
+<table>
+    <tr><th>Fee Amount</th><td>Rs. {{ candidate.fee_amount }}</td></tr>
+    <tr><th>Payment Status</th><td><strong>SUCCESSFUL (PAID)</strong></td></tr>
+    <tr><th>Transaction / Reference ID</th><td>{{ candidate.razorpay_payment_id }}</td></tr>
+</table>
+
+<div class="footer">
+    <p>This is a computer generated document. No physical signature required.</p>
+</div>
+
+</body>
+</html>

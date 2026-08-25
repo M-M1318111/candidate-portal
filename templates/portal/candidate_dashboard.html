@@ -1,0 +1,135 @@
+{% extends 'portal/base.html' %}
+
+{% block title %}Candidate Dashboard - {{ candidate.full_name }}{% endblock %}
+
+{% block content %}
+<div class="container my-4">
+    
+    <!-- Top Welcome Banner -->
+    <div class="card shadow-sm border-0 bg-primary text-white p-4 mb-4" style="border-radius: 12px;">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+            <div>
+                <h3 class="fw-bold mb-1">Welcome, {{ candidate.full_name }}!</h3>
+                <div class="d-flex gap-2 flex-wrap mt-2">
+                    <span class="badge bg-light text-primary fs-6">Reg No: {{ candidate.registration_no }}</span>
+                    <span class="badge bg-light text-primary fs-6">Roll No: {{ candidate.roll_number|default:"Pending Payment" }}</span>
+                </div>
+            </div>
+            <div>
+                <a href="{% url 'candidate_logout' %}" class="btn btn-light text-danger fw-semibold px-3 shadow-sm">
+                    🚪 Logout
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Grid Content -->
+    <div class="row g-4">
+        
+        <!-- Left Column: Status, Payment & Quick Downloads -->
+        <div class="col-lg-4">
+            
+            <!-- Card 1: Application Status -->
+            <div class="card shadow-sm p-3 mb-3 border-0 bg-white" style="border-radius: 10px;">
+                <h6 class="fw-bold border-bottom pb-2 text-secondary">Application Status</h6>
+                <div class="my-3 text-center">
+                    {% if candidate.is_paid %}
+                        <span class="badge bg-success p-2 fs-6">✓ Submitted & Paid</span>
+                        <p class="small text-muted mt-2 mb-1">Fee Paid: <strong>₹{{ candidate.fee_amount }}</strong></p>
+                        <p class="small text-muted mb-0">Txn ID: <code>{{ candidate.razorpay_payment_id|default:"CONFIRMED" }}</code></p>
+                    {% else %}
+                        <span class="badge bg-warning text-dark p-2 fs-6">⚠️ Payment Pending</span>
+                        <p class="small text-muted mt-2 mb-3">Application is incomplete without fee submission.</p>
+                        <a href="{% url 'preview' candidate.registration_no %}" class="btn btn-danger w-100 btn-sm fw-semibold shadow-sm">
+                            💳 Pay Fee Now (₹{{ candidate.fee_amount }})
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Card 2: Downloads & Documents -->
+            <div class="card shadow-sm p-3 border-0 bg-white" style="border-radius: 10px;">
+                <h6 class="fw-bold border-bottom pb-2 text-secondary">Downloads & Slips</h6>
+                <div class="d-grid gap-2 mt-3">
+                    <a href="{% url 'download_pdf' candidate.registration_no %}" class="btn btn-outline-primary btn-sm fw-semibold">
+                        📄 Download Application Slip
+                    </a>
+                    
+                    {% if candidate.is_paid %}
+                        <a href="{% url 'download_admit_card' candidate.registration_no %}" class="btn btn-outline-success btn-sm fw-semibold">
+                            🎟️ Download Admit Card
+                        </a>
+                    {% else %}
+                        <button class="btn btn-outline-secondary btn-sm" disabled title="Fee payment is required">
+                            🔒 Admit Card (Pay Fee First)
+                        </button>
+                    {% endif %}
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Right Column: Profile Summary -->
+        <div class="col-lg-8">
+            <div class="card shadow-sm p-4 border-0 bg-white" style="border-radius: 10px;">
+                <div class="d-flex justify-content-between align-items-center border-bottom pb-2 mb-3">
+                    <h5 class="fw-bold text-secondary mb-0">Applicant Profile Details</h5>
+                    {% if not candidate.is_paid %}
+                        <a href="{% url 'edit_candidate' candidate.registration_no %}" class="btn btn-outline-warning btn-sm fw-semibold">
+                            ✏️ Edit Details
+                        </a>
+                    {% endif %}
+                </div>
+                
+                <div class="table-responsive">
+                    <table class="table table-bordered table-sm mb-0">
+                        <tbody>
+                            <tr>
+                                <th class="bg-light" style="width: 30%;">Full Name</th>
+                                <td>{{ candidate.full_name }}</td>
+                            </tr>
+                            <tr>
+                                <th class="bg-light">Father's Name</th>
+                                <td>{{ candidate.father_name }}</td>
+                            </tr>
+                            <tr>
+                                <th class="bg-light">Mother's Name</th>
+                                <td>{{ candidate.mother_name }}</td>
+                            </tr>
+                            <tr>
+                                <th class="bg-light">Date of Birth</th>
+                                <td>{{ candidate.dob }}</td>
+                            </tr>
+                            <tr>
+                                <th class="bg-light">Category / Gender</th>
+                                <td>{{ candidate.category }} / {{ candidate.gender }}</td>
+                            </tr>
+                            <tr>
+                                <th class="bg-light">Email Address</th>
+                                <td>{{ candidate.email }}</td>
+                            </tr>
+                            <tr>
+                                <th class="bg-light">Mobile Number</th>
+                                <td>{{ candidate.phone }}</td>
+                            </tr>
+                            <tr>
+                                <th class="bg-light">Address</th>
+                                <td>{{ candidate.address }}</td>
+                            </tr>
+                            <tr>
+                                <th class="bg-light">Allocated Exam Center</th>
+                                <td class="fw-bold text-primary">{{ candidate.center_choice_1|default:"Main Examination Hall" }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="mt-3 pt-2 text-end">
+                    <span class="small text-muted">Applied on: {{ candidate.created_at|date:"d M Y, h:i A" }}</span>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,66 @@
+{% extends 'portal/base.html' %}
+
+{% block title %}Helpdesk & Grievance Portal{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="card shadow-sm p-4 mx-auto" style="max-width: 750px; border-radius: 12px;">
+        
+        <div class="d-flex justify-content-between align-items-center border-bottom pb-3 mb-4">
+            <div>
+                <h3 class="fw-bold text-primary mb-0">Candidate Helpdesk</h3>
+                <span class="text-muted small">Submit your query or track an existing ticket</span>
+            </div>
+            <a href="{% url 'ticket_status' %}" class="btn btn-outline-primary btn-sm">
+                🔍 Track Ticket Status
+            </a>
+        </div>
+
+        {% if success_ticket %}
+            <div class="alert alert-success p-3 text-center" role="alert">
+                <h5 class="fw-bold mb-1">Ticket Raised Successfully!</h5>
+                <p class="mb-1">Your Ticket ID is: <strong class="fs-5">{{ success_ticket.ticket_id }}</strong></p>
+                <small class="text-muted">Please save this Ticket ID to check the resolution status later.</small>
+            </div>
+        {% endif %}
+
+        <form method="POST">
+            {% csrf_token %}
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold">Registration Number *</label>
+                    <input type="text" name="registration_no" class="form-control" placeholder="e.g. CAND-728D065C" required>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold">Registered Email *</label>
+                    <input type="email" name="email" class="form-control" placeholder="name@example.com" required>
+                </div>
+                <div class="col-md-12">
+                    <label class="form-label fw-semibold">Grievance Category *</label>
+                    <select name="category" class="form-select" required>
+                        <option value="PAYMENT">Payment / Fee Deducted but Not Updated</option>
+                        <option value="DOCUMENT">Correction in Photo / Signature / Details</option>
+                        <option value="ADMIT_CARD">Unable to Download Admit Card</option>
+                        <option value="CENTER">Exam Center Allocation Query</option>
+                        <option value="OTHER">Other Technical Issue</option>
+                    </select>
+                </div>
+                <div class="col-12">
+                    <label class="form-label fw-semibold">Subject / Summary *</label>
+                    <input type="text" name="subject" class="form-control" placeholder="Brief explanation of your issue" required>
+                </div>
+                <div class="col-12">
+                    <label class="form-label fw-semibold">Detailed Description *</label>
+                    <textarea name="description" rows="4" class="form-control" placeholder="Provide complete details including transaction reference or incorrect values..." required></textarea>
+                </div>
+            </div>
+
+            <div class="text-end mt-4">
+                <button type="submit" class="btn btn-primary px-4 py-2 fw-semibold">
+                    Submit Grievance
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

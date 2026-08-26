@@ -10,10 +10,11 @@ cryptography==50.0.0
 cssselect2==0.9.0
 diff-match-patch==20241021
 dj3-cloudinary-storage==0.0.6
-Django==6.1
+Django>=5.1.0,<6.0
 django-import-export==4.4.1
-django-unfold==0.104.1
+django-unfold>=0.80.0
 et_xmlfile==2.0.0
+gunicorn==22.0.0
 html5lib==1.1
 idna==3.19
 lxml==6.1.2
@@ -23,7 +24,6 @@ pillow==12.3.0
 pycparser==3.0
 pyHanko==0.36.2
 pyhanko-certvalidator==0.31.4
-pymsql==0.0.1
 pypdf==6.16.2
 python-bidi==0.6.11
 python-dotenv==1.2.3

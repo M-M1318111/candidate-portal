@@ -20,7 +20,6 @@ ALLOWED_HOSTS = ['*']
 
 # Application definition
 INSTALLED_APPS = [
-    # ... purane apps ...
     'cloudinary',
     'cloudinary_storage',
     'unfold',
@@ -102,19 +101,33 @@ USE_TZ = True
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
-STORAGES = {
-    "default": {
-        "BACKEND": "django.core.files.storage.FileSystemStorage",
-    },
-    "staticfiles": {
-        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
-    },
-}
-
-
-# Media Files (Candidate Photo, Signatures, Documents)
+# Media Files & Storage Handling
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+if not DEBUG:
+    CLOUDINARY_STORAGE = {
+        'CLOUD_NAME': os.environ.get('CLOUD_NAME'),
+        'API_KEY': os.environ.get('CLOUD_API_KEY'),
+        'API_SECRET': os.environ.get('CLOUD_API_SECRET'),
+    }
+    STORAGES = {
+        "default": {
+            "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
+        },
+        "staticfiles": {
+            "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+        },
+    }
+else:
+    STORAGES = {
+        "default": {
+            "BACKEND": "django.core.files.storage.FileSystemStorage",
+        },
+        "staticfiles": {
+            "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+        },
+    }
 
 
 # Email Configuration (Gmail SMTP)
@@ -176,6 +189,11 @@ UNFOLD = {
                         "link": "/admin/portal/candidate/",
                     },
                     {
+                        "title": "📥 CSV / Excel Master Importer",
+                        "icon": "upload_file",
+                        "link": "/admin/portal/candidate/import-sheet/",
+                    },
+                    {
                         "title": "Result Evaluation Desk",
                         "icon": "verified",
                         "link": "/admin/portal/presentcandidateresult/",
@@ -211,10 +229,3 @@ UNFOLD = {
         ],
     },
 }
-if not DEBUG:
-    CLOUDINARY_STORAGE = {
-        'CLOUD_NAME': os.environ.get('CLOUD_NAME'),
-        'API_KEY': os.environ.get('CLOUD_API_KEY'),
-        'API_SECRET': os.environ.get('CLOUD_API_SECRET'),
-    }
-    DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'

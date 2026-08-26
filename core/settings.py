@@ -20,6 +20,9 @@ ALLOWED_HOSTS = ['*']
 
 # Application definition
 INSTALLED_APPS = [
+    # ... purane apps ...
+    'cloudinary',
+    'cloudinary_storage',
     'unfold',
     'django.contrib.admin',
     'django.contrib.auth',
@@ -27,6 +30,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'import_export',
     'portal',
 ]
 
@@ -207,3 +211,10 @@ UNFOLD = {
         ],
     },
 }
+if not DEBUG:
+    CLOUDINARY_STORAGE = {
+        'CLOUD_NAME': os.environ.get('CLOUD_NAME'),
+        'API_KEY': os.environ.get('CLOUD_API_KEY'),
+        'API_SECRET': os.environ.get('CLOUD_API_SECRET'),
+    }
+    DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'

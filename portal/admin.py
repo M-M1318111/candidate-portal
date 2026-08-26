@@ -4,7 +4,8 @@ import os
 import random
 import requests
 from urllib.parse import urlparse
-
+from import_export.admin import ImportExportModelAdmin
+from unfold.admin import ModelAdmin
 from django.conf import settings
 from django.contrib import admin, messages
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin, GroupAdmin as BaseGroupAdmin
@@ -142,7 +143,7 @@ class PresentCandidateResult(Candidate):
 
 
 @admin.register(PresentCandidateResult)
-class PresentCandidateResultAdmin(ModelAdmin):
+class PresentCandidateResultAdmin(ModelAdmin, ImportExportModelAdmin):
     list_display = (
         'student_photo',
         'roll_number',
@@ -248,7 +249,7 @@ if admin.site.is_registered(Candidate):
 
 
 @admin.register(Candidate)
-class CandidateAdmin(ModelAdmin):
+class CandidateAdmin(ModelAdmin, ImportExportModelAdmin):
     change_list_template = "admin/candidate_changelist.html"
 
     list_display = (
@@ -265,7 +266,7 @@ class CandidateAdmin(ModelAdmin):
         'attendance_badge',
         'quick_downloads',
     )
-    
+    pass
     list_editable = ('allotted_center', 'exam_date', 'exam_shift')
     list_display_links = ('registration_no', 'student_profile')
 

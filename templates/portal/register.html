@@ -4,16 +4,16 @@
 
 {% block content %}
 <div class="container my-5">
-    <div class="card card-stylish mx-auto overflow-hidden" style="max-width: 950px;" data-aos="fade-up">
+    <div class="card card-stylish mx-auto overflow-hidden shadow-lg border-0" style="max-width: 950px; border-radius: 16px;">
         
         <!-- Header Banner -->
-        <div class="p-4 p-md-5 text-white position-relative" style="background: var(--gradient-main);">
+        <div class="p-4 p-md-5 text-white position-relative" style="background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);">
             <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
                 <div>
                     <span class="badge bg-white text-primary px-3 py-1 rounded-pill fw-bold mb-2">
                         <i class="bi bi-award-fill me-1 text-warning"></i> National CBT Portal 2026
                     </span>
-                    <h2 class="font-display fw-bold mb-1">
+                    <h2 class="fw-bold mb-1">
                         {% if edit_mode %}Modify Candidate Application{% else %}Candidate Online Registration{% endif %}
                     </h2>
                     <p class="mb-0 text-white-50 small">Fill the required authentication and qualification details accurately.</p>
@@ -26,7 +26,7 @@
 
         <div class="p-4 p-md-5 bg-white">
             
-            <!-- Modern Stepper Indicator -->
+            <!-- Stepper Indicator -->
             <div class="row g-2 mb-5 text-center">
                 <div class="col-3">
                     <div class="p-2 rounded-4 border bg-light text-primary border-primary fw-semibold small">
@@ -45,14 +45,14 @@
                 </div>
                 <div class="col-3">
                     <div class="p-2 rounded-4 border bg-light text-muted fw-semibold small">
-                        <i class="bi bi-file-earmark-arrow-up d-block fs-5 mb-1"></i> Uploads
+                        <i class="bi bi-camera-video d-block fs-5 mb-1"></i> Biometrics
                     </div>
                 </div>
             </div>
 
             <!-- Error Notification -->
             {% if form.errors %}
-                <div class="alert alert-danger rounded-4 p-3 mb-4 shadow-sm" data-aos="shake">
+                <div class="alert alert-danger rounded-4 p-3 mb-4 shadow-sm">
                     <div class="d-flex align-items-center mb-1 fw-bold">
                         <i class="bi bi-exclamation-octagon-fill me-2 fs-5"></i> Please correct the required fields:
                     </div>
@@ -62,18 +62,22 @@
                                 <li><strong>{{ field.label }}:</strong> {{ error }}</li>
                             {% endfor %}
                         {% endfor %}
+                        {% for error in form.non_field_errors %}
+                            <li>{{ error }}</li>
+                        {% endfor %}
                     </ul>
                 </div>
             {% endif %}
 
-            <form method="POST" enctype="multipart/form-data" id="candidateRegistrationForm">
+            <form method="POST" enctype="multipart/form-data" id="candidateRegistrationForm" data-edit-mode="{% if edit_mode %}true{% else %}false{% endif %}" data-send-otp-url="{% url 'send_otp' %}" data-verify-otp-url="{% url 'verify_otp' %}">
                 {% csrf_token %}
+                {{ form.live_captured_photo }}
 
                 <!-- Section 1: Personal Details -->
                 <div class="mb-5">
                     <div class="d-flex align-items-center gap-2 border-bottom pb-2 mb-4">
                         <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center" style="width: 28px; height: 28px; font-size: 13px;">1</div>
-                        <h5 class="fw-bold mb-0 text-dark font-display">Personal Identification</h5>
+                        <h5 class="fw-bold mb-0 text-dark">Personal Identification</h5>
                     </div>
 
                     <div class="row g-3">
@@ -105,15 +109,19 @@
                                 {{ form.mother_name }}
                             </div>
                         </div>
-                        <div class="col-md-4">
+                        <div class="col-md-3">
                             <label class="form-label fw-semibold small text-muted">Gender <span class="text-danger">*</span></label>
                             {{ form.gender }}
                         </div>
-                        <div class="col-md-4">
+                        <div class="col-md-3">
                             <label class="form-label fw-semibold small text-muted">Category <span class="text-danger">*</span></label>
                             {{ form.category }}
                         </div>
-                        <div class="col-md-4">
+                        <div class="col-md-3">
+                            <label class="form-label fw-semibold small text-muted">Nationality <span class="text-danger">*</span></label>
+                            {{ form.nationality }}
+                        </div>
+                        <div class="col-md-3">
                             <label class="form-label fw-semibold small text-muted">Identity ID Number <span class="text-danger">*</span></label>
                             <div class="input-group">
                                 <span class="input-group-text"><i class="bi bi-card-text"></i></span>
@@ -123,28 +131,52 @@
                     </div>
                 </div>
 
-                <!-- Section 2: Contact Details -->
+                <!-- Section 2: Contact Details & OTP Verification -->
                 <div class="mb-5">
                     <div class="d-flex align-items-center gap-2 border-bottom pb-2 mb-4">
                         <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center" style="width: 28px; height: 28px; font-size: 13px;">2</div>
-                        <h5 class="fw-bold mb-0 text-dark font-display">Communication Address</h5>
+                        <h5 class="fw-bold mb-0 text-dark">Communication & OTP Verification</h5>
                     </div>
 
                     <div class="row g-3">
                         <div class="col-md-6">
-                            <label class="form-label fw-semibold small text-muted">Email Address <span class="text-danger">*</span></label>
+                            <label class="form-label fw-semibold small text-muted d-flex justify-content-between">
+                                <span>Email Address <span class="text-danger">*</span></span>
+                                <span id="emailVerifiedBadge" class="badge bg-success d-none"><i class="bi bi-check-circle-fill me-1"></i> Verified</span>
+                            </label>
                             <div class="input-group">
                                 <span class="input-group-text"><i class="bi bi-envelope"></i></span>
                                 {{ form.email }}
+                                <button type="button" class="btn btn-outline-primary fw-semibold" id="btnSendEmailOtp">Send OTP</button>
+                            </div>
+                            <div id="emailOtpContainer" class="mt-2 p-2 border rounded-3 bg-light d-none">
+                                <div class="input-group input-group-sm">
+                                    <input type="text" id="inputEmailOtp" class="form-control" placeholder="Enter 6-digit Email OTP" maxlength="6">
+                                    <button type="button" class="btn btn-success fw-bold" id="btnVerifyEmailOtp">Verify Email OTP</button>
+                                </div>
+                                <div id="emailOtpStatus" class="form-text small mt-1"></div>
                             </div>
                         </div>
+
                         <div class="col-md-6">
-                            <label class="form-label fw-semibold small text-muted">Mobile Number <span class="text-danger">*</span></label>
+                            <label class="form-label fw-semibold small text-muted d-flex justify-content-between">
+                                <span>Mobile Number <span class="text-danger">*</span></span>
+                                <span id="phoneVerifiedBadge" class="badge bg-success d-none"><i class="bi bi-check-circle-fill me-1"></i> Verified</span>
+                            </label>
                             <div class="input-group">
                                 <span class="input-group-text"><i class="bi bi-phone"></i></span>
                                 {{ form.phone }}
+                                <button type="button" class="btn btn-outline-primary fw-semibold" id="btnSendPhoneOtp">Send OTP</button>
+                            </div>
+                            <div id="phoneOtpContainer" class="mt-2 p-2 border rounded-3 bg-light d-none">
+                                <div class="input-group input-group-sm">
+                                    <input type="text" id="inputPhoneOtp" class="form-control" placeholder="Enter 6-digit SMS OTP" maxlength="6">
+                                    <button type="button" class="btn btn-success fw-bold" id="btnVerifyPhoneOtp">Verify Mobile OTP</button>
+                                </div>
+                                <div id="phoneOtpStatus" class="form-text small mt-1"></div>
                             </div>
                         </div>
+
                         <div class="col-12">
                             <label class="form-label fw-semibold small text-muted">Permanent Address <span class="text-danger">*</span></label>
                             {{ form.address }}
@@ -156,7 +188,7 @@
                 <div class="mb-5">
                     <div class="d-flex align-items-center gap-2 border-bottom pb-2 mb-4">
                         <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center" style="width: 28px; height: 28px; font-size: 13px;">3</div>
-                        <h5 class="fw-bold mb-0 text-dark font-display">Qualifications & Preferred Centers</h5>
+                        <h5 class="fw-bold mb-0 text-dark">Qualifications & Preferred Centers</h5>
                     </div>
 
                     <div class="row g-3">
@@ -184,7 +216,6 @@
                             </div>
                         </div>
 
-                        <!-- 3 Choices -->
                         <div class="col-md-4 mt-3">
                             <label class="form-label fw-semibold small text-muted">Test Center Choice 1 <span class="text-danger">*</span></label>
                             {{ form.center_choice_1 }}
@@ -200,60 +231,84 @@
                     </div>
                 </div>
 
-                <!-- Section 4: Document Dropzones -->
+                <!-- Section 4: Document Uploads & Live Biometric Verification -->
                 <div class="mb-5">
                     <div class="d-flex align-items-center gap-2 border-bottom pb-2 mb-4">
                         <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center" style="width: 28px; height: 28px; font-size: 13px;">4</div>
-                        <h5 class="fw-bold mb-0 text-dark font-display">Document Uploads</h5>
+                        <h5 class="fw-bold mb-0 text-dark">Live Biometrics & Document Proofs</h5>
                     </div>
 
                     <div class="row g-4">
-                        <!-- Photo -->
-                        <div class="col-md-4">
-                            <div class="p-3 border rounded-4 bg-light text-center h-100 d-flex flex-column justify-content-between">
+                        <!-- 1. Mandatory Live Webcam Photo -->
+                        <div class="col-md-6">
+                            <div class="p-3 border-2 border-primary rounded-4 bg-light text-center h-100 d-flex flex-column justify-content-between shadow-xs">
                                 <div>
-                                    <span class="badge bg-secondary mb-2">Photo Proof</span>
-                                    <div class="mb-2 mx-auto d-flex align-items-center justify-content-center bg-white border rounded-3 shadow-sm" style="height: 130px; width: 110px; overflow: hidden;">
-                                        <img id="photoPreview" src="{% if form.instance.photo %}{{ form.instance.photo.url }}{% else %}https://placehold.co/110x130/e2e8f0/475569?text=Photo{% endif %}" class="img-fluid" style="object-fit: cover; width: 100%; height: 100%;">
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <span class="badge bg-primary px-3 py-1"><i class="bi bi-camera-video me-1"></i> Live Biometric Photo <span class="text-warning">*</span></span>
+                                        <span id="webcamBadge" class="badge bg-success d-none"><i class="bi bi-check-circle-fill me-1"></i> Captured</span>
+                                    </div>
+                                    
+                                    <div class="mb-2 mx-auto d-flex align-items-center justify-content-center bg-white border border-2 border-dashed border-primary rounded-3 shadow-sm position-relative" style="height: 150px; width: 130px; overflow: hidden;">
+                                        <img id="liveWebcamPreview" src="https://placehold.co/130x150/e2e8f0/1e40af?text=Live+Cam" class="img-fluid" style="object-fit: cover; width: 100%; height: 100%;" alt="Live Photo Preview">
                                     </div>
                                 </div>
                                 <div>
-                                    <div class="small text-muted mb-2">JPG/PNG (Max 200KB)</div>
+                                    <div class="small text-danger fw-bold mb-2">Mandatory: Click below to capture live photo</div>
+                                    <button type="button" class="btn btn-primary w-100 fw-bold shadow-sm rounded-pill" data-bs-toggle="modal" data-bs-target="#webcamModal">
+                                        <i class="bi bi-camera-fill me-1"></i> Open Camera & Capture
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 2. Scanned Passport Photo (Upload) -->
+                        <div class="col-md-6">
+                            <div class="p-3 border rounded-4 bg-light text-center h-100 d-flex flex-column justify-content-between">
+                                <div>
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <span class="badge bg-secondary">Scanned Passport Photo</span>
+                                    </div>
+                                    <div class="mb-2 mx-auto d-flex align-items-center justify-content-center bg-white border rounded-3 shadow-sm" style="height: 150px; width: 130px; overflow: hidden;">
+                                        <img id="photoPreview" src="{% if form.instance.photo %}{{ form.instance.photo.url }}{% else %}https://placehold.co/130x150/e2e8f0/475569?text=Passport+Pic{% endif %}" class="img-fluid" style="object-fit: cover; width: 100%; height: 100%;" alt="Passport Photo">
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="small text-muted mb-2">JPG/PNG (20KB - 100KB)</div>
                                     {{ form.photo }}
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Signature -->
-                        <div class="col-md-4">
+                        <!-- 3. Signature Proof -->
+                        <div class="col-md-6">
                             <div class="p-3 border rounded-4 bg-light text-center h-100 d-flex flex-column justify-content-between">
                                 <div>
-                                    <span class="badge bg-secondary mb-2">Signature Proof</span>
-                                    <div class="mb-2 mx-auto d-flex align-items-center justify-content-center bg-white border rounded-3 shadow-sm" style="height: 130px; width: 180px; overflow: hidden;">
-                                        <img id="sigPreview" src="{% if form.instance.signature %}{{ form.instance.signature.url }}{% else %}https://placehold.co/180x130/e2e8f0/475569?text=Signature{% endif %}" class="img-fluid" style="object-fit: contain; width: 100%; height: 100%;">
+                                    <span class="badge bg-secondary mb-2">Signature Proof <span class="text-danger">*</span></span>
+                                    <div class="mb-2 mx-auto d-flex align-items-center justify-content-center bg-white border rounded-3 shadow-sm" style="height: 120px; width: 220px; overflow: hidden;">
+                                        <img id="sigPreview" src="{% if form.instance.signature %}{{ form.instance.signature.url }}{% else %}https://placehold.co/220x120/e2e8f0/475569?text=Signature+Preview{% endif %}" class="img-fluid" style="object-fit: contain; width: 100%; height: 100%;" alt="Signature Preview">
                                     </div>
                                 </div>
                                 <div>
-                                    <div class="small text-muted mb-2">JPG/PNG (Max 100KB)</div>
+                                    <div class="small text-muted mb-2">JPG/PNG (20KB - 100KB)</div>
                                     {{ form.signature }}
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Doc -->
-                        <div class="col-md-4">
+                        <!-- 4. Identity Proof Document -->
+                        <div class="col-md-6">
                             <div class="p-3 border rounded-4 bg-light text-center h-100 d-flex flex-column justify-content-between">
                                 <div>
-                                    <span class="badge bg-secondary mb-2">Identity Proof</span>
-                                    <div class="mb-2 mx-auto d-flex align-items-center justify-content-center bg-white border rounded-3 shadow-sm" style="height: 130px; width: 180px;">
+                                    <span class="badge bg-secondary mb-2">Identity Proof (Aadhaar / ID) <span class="text-danger">*</span></span>
+                                    <div class="mb-2 mx-auto d-flex align-items-center justify-content-center bg-white border rounded-3 shadow-sm" style="height: 120px; width: 220px;">
                                         <div class="p-2 text-center text-muted">
-                                            <i class="bi bi-file-earmark-check text-primary fs-1 d-block"></i>
-                                            <span class="small fw-semibold">Identity Document</span>
+                                            <i class="bi bi-file-earmark-check text-primary fs-2 d-block"></i>
+                                            <span class="small fw-semibold">ID Proof Document</span>
                                         </div>
                                     </div>
                                 </div>
                                 <div>
-                                    <div class="small text-muted mb-2">PDF/JPG (Max 500KB)</div>
+                                    <div class="small text-muted mb-2">PDF/JPG (Max 300KB)</div>
                                     {{ form.aadhaar_doc }}
                                 </div>
                             </div>
@@ -266,7 +321,7 @@
                     <a href="{% url 'home' %}" class="btn btn-light px-4 fw-semibold border rounded-3">
                         <i class="bi bi-arrow-left me-1"></i> Cancel
                     </a>
-                    <button type="submit" class="btn btn-modern px-5 shadow">
+                    <button type="submit" id="btnSubmitForm" class="btn btn-primary px-5 py-2 fw-bold shadow rounded-pill">
                         {% if edit_mode %}Save & Review Changes{% else %}Proceed to Application Preview <i class="bi bi-arrow-right ms-2"></i>{% endif %}
                     </button>
                 </div>
@@ -276,48 +331,242 @@
     </div>
 </div>
 
+<!-- ========================================== -->
+<!-- 📷 LIVE WEBCAM CAPTURE MODAL -->
+<!-- ========================================== -->
+<div class="modal fade" id="webcamModal" tabindex="-1" aria-labelledby="webcamModalLabel" aria-hidden="true" data-bs-backdrop="static">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content rounded-4 border-0 shadow">
+            <div class="modal-header bg-primary text-white border-0">
+                <h6 class="modal-title fw-bold" id="webcamModalLabel"><i class="bi bi-camera-fill me-2"></i>Live Webcam Biometric Photo Capture</h6>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" id="btnCloseModal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4 text-center">
+                <div class="position-relative mx-auto rounded-3 overflow-hidden border bg-dark" style="max-width: 360px; height: 270px;">
+                    <video id="webcamVideo" autoplay playsinline class="w-100 h-100" style="object-fit: cover; transform: scaleX(-1);"></video>
+                    <canvas id="webcamCanvas" class="d-none"></canvas>
+                    
+                    <!-- Oval Face Guide Frame -->
+                    <div style="position: absolute; top: 10%; left: 22%; width: 56%; height: 80%; border: 2px dashed rgba(255,255,255,0.7); border-radius: 50%; pointer-events: none;"></div>
+                </div>
+                <p class="text-muted small mt-2 mb-0">Align your face inside the oval frame and ensure good lighting.</p>
+                <div id="cameraErrorMsg" class="text-danger small mt-1 d-none"></div>
+            </div>
+            <div class="modal-footer border-0 justify-content-between px-4 pb-4">
+                <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal" id="btnCancelCam">Cancel</button>
+                <button type="button" class="btn btn-primary rounded-pill px-4 fw-bold" id="btnCapturePhoto">
+                    <i class="bi bi-camera me-1"></i> Capture Snapshot
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
-    // Live Percentage Calculator
-    function calcPercentage() {
-        const totalInput = document.querySelector('input[name="total_marks"]');
-        const obtainInput = document.querySelector('input[name="obtained_marks"]');
-        const preview = document.getElementById('percentagePreview');
+    document.addEventListener("DOMContentLoaded", function () {
+        const formEl = document.getElementById('candidateRegistrationForm');
+        const isEditMode = formEl.getAttribute('data-edit-mode') === 'true';
+        const sendOtpUrl = formEl.getAttribute('data-send-otp-url');
+        const verifyOtpUrl = formEl.getAttribute('data-verify-otp-url');
 
-        if (totalInput && obtainInput && preview) {
-            const total = parseFloat(totalInput.value);
-            const obtain = parseFloat(obtainInput.value);
+        let isEmailVerified = isEditMode;
+        let isPhoneVerified = isEditMode;
 
-            if (!isNaN(total) && !isNaN(obtain) && total > 0 && obtain <= total) {
-                const perc = ((obtain / total) * 100).toFixed(2);
-                preview.value = perc + '%';
-            } else {
-                preview.value = '';
+        // --- OTP Engine ---
+        function handleSendOtp(type) {
+            const inputVal = document.getElementById('id_' + type).value.trim();
+            const statusDiv = document.getElementById(type + 'OtpStatus');
+            const btnSend = document.getElementById('btnSend' + type.charAt(0).toUpperCase() + type.slice(1) + 'Otp');
+
+            if (!inputVal) {
+                alert('Please enter a valid ' + type + ' first.');
+                return;
             }
-        }
-    }
 
-    const tInput = document.querySelector('input[name="total_marks"]');
-    const oInput = document.querySelector('input[name="obtained_marks"]');
-    if (tInput) tInput.addEventListener('input', calcPercentage);
-    if (oInput) oInput.addEventListener('input', calcPercentage);
+            btnSend.disabled = true;
+            btnSend.innerText = 'Sending...';
 
-    // Instant Image Previews
-    function bindPreview(inputSelector, previewId) {
-        const input = document.querySelector(inputSelector);
-        const img = document.getElementById(previewId);
-        if (input && img) {
-            input.addEventListener('change', function(e) {
-                if (e.target.files && e.target.files[0]) {
-                    const reader = new FileReader();
-                    reader.onload = (event) => img.src = event.target.result;
-                    reader.readAsDataURL(e.target.files[0]);
+            const formData = new FormData();
+            formData.append('type', type);
+            formData.append('value', inputVal);
+
+            fetch(sendOtpUrl, {
+                method: 'POST',
+                body: formData
+            })
+            .then(res => res.json())
+            .then(data => {
+                btnSend.disabled = false;
+                btnSend.innerText = 'Resend OTP';
+                if (data.status === 'success') {
+                    document.getElementById(type + 'OtpContainer').classList.remove('d-none');
+                    statusDiv.innerHTML = '<span class="text-success">' + data.message + '</span>';
+                } else {
+                    statusDiv.innerHTML = '<span class="text-danger">' + data.message + '</span>';
                 }
+            })
+            .catch(() => {
+                btnSend.disabled = false;
+                btnSend.innerText = 'Send OTP';
+                alert('Error connecting to OTP service.');
             });
         }
-    }
 
-    bindPreview('input[name="photo"]', 'photoPreview');
-    bindPreview('input[name="signature"]', 'sigPreview');
-    calcPercentage();
+        function handleVerifyOtp(type) {
+            const otpVal = document.getElementById('input' + type.charAt(0).toUpperCase() + type.slice(1) + 'Otp').value.trim();
+            const inputVal = document.getElementById('id_' + type).value.trim();
+            const statusDiv = document.getElementById(type + 'OtpStatus');
+
+            if (!otpVal) {
+                alert('Please enter the received 6-digit OTP.');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('type', type);
+            formData.append('otp', otpVal);
+            formData.append('value', inputVal);
+
+            fetch(verifyOtpUrl, {
+                method: 'POST',
+                body: formData
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    if (type === 'email') isEmailVerified = true;
+                    if (type === 'phone') isPhoneVerified = true;
+
+                    document.getElementById(type + 'VerifiedBadge').classList.remove('d-none');
+                    document.getElementById(type + 'OtpContainer').classList.add('d-none');
+                    document.getElementById('id_' + type).readOnly = true;
+                    document.getElementById('btnSend' + type.charAt(0).toUpperCase() + type.slice(1) + 'Otp').classList.add('d-none');
+                } else {
+                    statusDiv.innerHTML = '<span class="text-danger">' + data.message + '</span>';
+                }
+            })
+            .catch(() => {
+                alert('OTP Verification Error.');
+            });
+        }
+
+        document.getElementById('btnSendEmailOtp').addEventListener('click', () => handleSendOtp('email'));
+        document.getElementById('btnVerifyEmailOtp').addEventListener('click', () => handleVerifyOtp('email'));
+        document.getElementById('btnSendPhoneOtp').addEventListener('click', () => handleSendOtp('phone'));
+        document.getElementById('btnVerifyPhoneOtp').addEventListener('click', () => handleVerifyOtp('phone'));
+
+        formEl.addEventListener('submit', function (e) {
+            if (!isEditMode && (!isEmailVerified || !isPhoneVerified)) {
+                e.preventDefault();
+                alert('Mandatory: Please verify both your Email Address and Mobile Number using OTP before submitting.');
+                return;
+            }
+
+            const livePhotoVal = document.getElementById('id_live_captured_photo').value;
+            if (!isEditMode && !livePhotoVal) {
+                e.preventDefault();
+                alert('Mandatory Requirement: Please capture your Live Biometric Photo using the camera before proceeding.');
+                return;
+            }
+        });
+
+        // --- Percentage Calculator ---
+        function calcPercentage() {
+            const totalInput = document.getElementById('id_total_marks');
+            const obtainInput = document.getElementById('id_obtained_marks');
+            const preview = document.getElementById('percentagePreview');
+
+            if (totalInput && obtainInput && preview) {
+                const total = parseFloat(totalInput.value);
+                const obtain = parseFloat(obtainInput.value);
+
+                if (!isNaN(total) && !isNaN(obtain) && total > 0 && obtain <= total) {
+                    preview.value = ((obtain / total) * 100).toFixed(2) + '%';
+                } else {
+                    preview.value = '';
+                }
+            }
+        }
+
+        const tInput = document.getElementById('id_total_marks');
+        const oInput = document.getElementById('id_obtained_marks');
+        if (tInput) tInput.addEventListener('input', calcPercentage);
+        if (oInput) oInput.addEventListener('input', calcPercentage);
+
+        // --- File Previews ---
+        function bindPreview(inputId, previewId) {
+            const input = document.getElementById(inputId);
+            const img = document.getElementById(previewId);
+            if (input && img) {
+                input.addEventListener('change', function (e) {
+                    if (e.target.files && e.target.files[0]) {
+                        const reader = new FileReader();
+                        reader.onload = (event) => { 
+                            img.src = event.target.result; 
+                        };
+                        reader.readAsDataURL(e.target.files[0]);
+                    }
+                });
+            }
+        }
+
+        bindPreview('id_photo', 'photoPreview');
+        bindPreview('id_signature', 'sigPreview');
+        calcPercentage();
+
+        // --- Live Webcam Engine ---
+        let webcamStream = null;
+        const video = document.getElementById('webcamVideo');
+        const canvas = document.getElementById('webcamCanvas');
+        const webcamModal = document.getElementById('webcamModal');
+        const btnCapture = document.getElementById('btnCapturePhoto');
+        const errorDiv = document.getElementById('cameraErrorMsg');
+
+        webcamModal.addEventListener('shown.bs.modal', function () {
+            errorDiv.classList.add('d-none');
+            navigator.mediaDevices.getUserMedia({ video: { width: 640, height: 480, facingMode: 'user' } })
+                .then(stream => {
+                    webcamStream = stream;
+                    video.srcObject = stream;
+                })
+                .catch(err => {
+                    errorDiv.innerText = 'Unable to access camera: ' + err.message;
+                    errorDiv.classList.remove('d-none');
+                });
+        });
+
+        function stopWebcam() {
+            if (webcamStream) {
+                webcamStream.getTracks().forEach(track => track.stop());
+                webcamStream = null;
+            }
+        }
+
+        webcamModal.addEventListener('hidden.bs.modal', stopWebcam);
+
+        btnCapture.addEventListener('click', function () {
+            if (!video.videoWidth) return;
+
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            const ctx = canvas.getContext('2d');
+            
+            // Mirror image back to normal
+            ctx.translate(canvas.width, 0);
+            ctx.scale(-1, 1);
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+            const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
+
+            // Set to live preview and hidden input
+            document.getElementById('liveWebcamPreview').src = dataUrl;
+            document.getElementById('id_live_captured_photo').value = dataUrl;
+            document.getElementById('webcamBadge').classList.remove('d-none');
+
+            // Close modal
+            bootstrap.Modal.getInstance(webcamModal).hide();
+            stopWebcam();
+        });
+    });
 </script>
 {% endblock %}

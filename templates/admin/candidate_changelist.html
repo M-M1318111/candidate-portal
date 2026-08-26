@@ -1,0 +1,46 @@
+{% extends "admin/change_list.html" %}
+
+{% block content %}
+    <!-- Top Action Bar for Candidate Page -->
+    <div style="background: #ffffff; border: 1.5px solid #e2e8f0; border-radius: 12px; padding: 16px 20px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.04);">
+        <div>
+            <h2 style="font-size: 18px; font-weight: 800; color: #0f172a; margin: 0 0 2px 0;">
+                🎓 Candidate Applications Console
+            </h2>
+            <p style="color: #64748b; font-size: 12px; margin: 0;">
+                Real-time Management, Roll No Allocation, Biometric Check-in & Result Release
+            </p>
+        </div>
+
+        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+            <a href="{% url 'admin:candidate_sample_csv' %}" style="padding: 8px 14px; background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 12px; font-weight: 700; color: #334155; text-decoration: none;">
+                📄 Download Sample CSV
+            </a>
+            <a href="{% url 'admin:candidate_import_sheet' %}" style="padding: 8px 18px; background: #2563eb; color: #ffffff !important; border-radius: 6px; font-size: 12px; font-weight: 800; text-decoration: none; box-shadow: 0 2px 4px rgba(37,99,235,0.25);">
+                📥 Open Bulk CSV Importer (All Modules)
+            </a>
+        </div>
+    </div>
+
+    <!-- Summary Metric Cards -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-bottom: 20px;">
+        <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 10px; padding: 14px 16px;">
+            <div style="font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase;">Total Applications</div>
+            <div style="font-size: 24px; font-weight: 900; color: #0f172a; margin-top: 4px;">{{ summary_metrics.total_reg|default:"0" }}</div>
+        </div>
+        <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 10px; padding: 14px 16px;">
+            <div style="font-size: 11px; font-weight: 700; color: #16a34a; text-transform: uppercase;">Paid Registrations</div>
+            <div style="font-size: 24px; font-weight: 900; color: #16a34a; margin-top: 4px;">{{ summary_metrics.paid_reg|default:"0" }}</div>
+        </div>
+        <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 10px; padding: 14px 16px;">
+            <div style="font-size: 11px; font-weight: 700; color: #2563eb; text-transform: uppercase;">Centers Allotted</div>
+            <div style="font-size: 24px; font-weight: 900; color: #2563eb; margin-top: 4px;">{{ summary_metrics.allotted_count|default:"0" }}</div>
+        </div>
+        <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 10px; padding: 14px 16px;">
+            <div style="font-size: 11px; font-weight: 700; color: #7c3aed; text-transform: uppercase;">Admit Released</div>
+            <div style="font-size: 24px; font-weight: 900; color: #7c3aed; margin-top: 4px;">{{ summary_metrics.released_count|default:"0" }}</div>
+        </div>
+    </div>
+
+    {{ block.super }}
+{% endblock %}

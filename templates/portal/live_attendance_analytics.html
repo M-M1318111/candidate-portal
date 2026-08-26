@@ -1,0 +1,98 @@
+{% extends 'portal/base.html' %}
+
+{% block title %}Live Gate Attendance Dashboard - Staff Console{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4 px-md-5">
+    
+    <!-- Top Header & Metrics -->
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+        <div>
+            <h4 class="fw-black text-dark mb-1">Gate Attendance & Center Live Occupancy Analytics</h4>
+            <p class="text-muted small mb-0">Real-time biometrics & QR check-in status across examination centers.</p>
+        </div>
+        <div class="d-flex gap-2">
+            <a href="{% url 'qr_scanner' %}" class="btn btn-primary fw-bold rounded-pill px-4 shadow-sm">
+                <i class="bi bi-qr-code-scan me-1"></i> Open Gate QR Scanner
+            </a>
+        </div>
+    </div>
+
+    <!-- Stat Cards -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm rounded-4 p-3 bg-white">
+                <span class="small fw-bold text-muted text-uppercase">Total Expected</span>
+                <h2 class="fw-black text-dark mt-2 mb-0">{{ total_expected }}</h2>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm rounded-4 p-3 bg-white">
+                <span class="small fw-bold text-success text-uppercase">Present (Checked-In)</span>
+                <h2 class="fw-black text-success mt-2 mb-0">{{ total_verified }}</h2>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm rounded-4 p-3 bg-white">
+                <span class="small fw-bold text-danger text-uppercase">Remaining / Absent</span>
+                <h2 class="fw-black text-danger mt-2 mb-0">{{ total_absent }}</h2>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm rounded-4 p-3 bg-white">
+                <span class="small fw-bold text-primary text-uppercase">Overall Turnout</span>
+                <h2 class="fw-black text-primary mt-2 mb-0">{{ overall_rate }}%</h2>
+            </div>
+        </div>
+    </div>
+
+    <!-- Center Breakdown Grid -->
+    <div class="row g-4">
+        {% for a in analytics %}
+        <div class="col-lg-6">
+            <div class="card border-0 shadow-sm rounded-4 h-100 overflow-hidden">
+                <div class="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center">
+                    <div>
+                        <strong class="text-dark fs-6">{{ a.center.center_name }}</strong>
+                        <div class="text-muted small">Code: {{ a.center.center_code }} | {{ a.center.city }}</div>
+                    </div>
+                    <span class="badge {% if a.attendance_rate >= 80 %}bg-success{% elif a.attendance_rate >= 50 %}bg-primary{% else %}bg-warning text-dark{% endif %} fs-6 px-3 py-2">
+                        {{ a.attendance_rate }}% Present
+                    </span>
+                </div>
+                <div class="card-body p-4">
+                    <!-- Progress Bar -->
+                    <div class="progress mb-3" style="height: 10px; border-radius: 999px;">
+                         <<div class="card-box" style="width: {{ dynamic_width }};">
+                         <!-- Content -->
+                        </div>
+                    </div>
+                    <div class="d-flex justify-content-between small text-muted mb-3">
+                        <span>Allotted: <b>{{ a.allotted }}</b></span>
+                        <span class="text-success">Present: <b>{{ a.present }}</b></span>
+                        <span class="text-danger">Absent: <b>{{ a.absent }}</b></span>
+                    </div>
+
+                    <!-- Recent Gate Entries -->
+                    <h6 class="small fw-bold text-dark mb-2">⚡ Recent Verified Entries:</h6>
+                    <ul class="list-group list-group-flush small">
+                        {% for cand in a.recent_entries %}
+                        <li class="list-group-item px-0 py-2 d-flex justify-content-between align-items-center">
+                            <div>
+                                <strong>{{ cand.full_name }}</strong>
+                                <span class="text-muted ms-2">({{ cand.roll_number|default:cand.registration_no }})</span>
+                            </div>
+                            <span class="badge bg-light text-dark">{{ cand.entry_verified_at|date:"h:i:s A" }}</span>
+                        </li>
+                        {% empty %}
+                        <li class="list-group-item px-0 py-2 text-muted">No candidate check-ins recorded yet.</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+</div>
+{% endblock %}

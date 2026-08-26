@@ -41,7 +41,7 @@
         left: 0;
         width: 100%;
         height: 4px;
-        background: var(--gradient-main);
+        background: linear-gradient(90deg, #2563eb, #4f46e5);
         opacity: 0;
         transition: opacity 0.3s ease;
     }
@@ -85,6 +85,21 @@
         100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
     }
 
+    .pulse-emerald {
+        width: 10px;
+        height: 10px;
+        background-color: #10b981;
+        border-radius: 50%;
+        display: inline-block;
+        box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+        animation: pulse-green 1.6s infinite;
+    }
+    @keyframes pulse-green {
+        0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+        70% { transform: scale(1); box-shadow: 0 0 0 8px rgba(16, 185, 129, 0); }
+        100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+    }
+
     /* Step Timeline Node */
     .step-pill {
         background: #ffffff;
@@ -102,19 +117,34 @@
 
 <div class="container my-4 my-md-5">
 
-    <!-- Live Announcement Bar -->
+    <!-- Dynamic Result / Live Notice Bar -->
+    {% if config.is_result_published %}
+    <div class="card border-0 shadow-sm rounded-4 mb-4 p-2 px-3 bg-emerald-50 border-start border-emerald-500 border-4 d-flex flex-row align-items-center justify-content-between flex-wrap gap-2" style="background: #f0fdf4; border: 1.5px solid #86efac;" data-aos="fade-down">
+        <div class="d-flex align-items-center gap-2">
+            <span class="pulse-emerald"></span>
+            <span class="badge bg-success text-white rounded-pill px-2.5 py-1 small fw-bold">RESULT DECLARED</span>
+            <span class="small fw-bold text-emerald-900">
+                Official CBT 2026 Examination Results & Scorecards are now live! Login to view and download your Scorecard.
+            </span>
+        </div>
+        <a href="{% url 'candidate_login' %}" class="btn btn-sm btn-success rounded-pill px-3 py-1 fw-bold">
+            Check Result & Scorecard &rarr;
+        </a>
+    </div>
+    {% else %}
     <div class="card border-0 shadow-sm rounded-4 mb-4 p-2 px-3 bg-white d-flex flex-row align-items-center justify-content-between flex-wrap gap-2" data-aos="fade-down">
         <div class="d-flex align-items-center gap-2">
             <span class="pulse-dot"></span>
             <span class="badge bg-danger text-white rounded-pill px-2 py-1 small fw-bold">LIVE NOTICE</span>
             <span class="small fw-semibold text-secondary">
-                Online registration window for CBT Session 2026-27 is now open. Verify details before fee payment.
+                {{ config.announcement_ticker|default:"Online registration window for CBT Session 2026 is now open. Verify details before fee payment." }}
             </span>
         </div>
         <a href="{% url 'register' %}" class="btn btn-sm btn-link text-primary text-decoration-none fw-bold p-0">
             Apply Now <i class="bi bi-arrow-right"></i>
         </a>
     </div>
+    {% endif %}
 
     <!-- Hero Section -->
     <div class="hero-wrapper p-4 p-md-5 mb-5 border shadow-sm" data-aos="zoom-in">
@@ -122,47 +152,61 @@
             <div class="col-lg-10">
                 
                 <div class="floating-badge mb-3">
-                    <span class="badge badge-pulse px-3 py-2 rounded-pill fw-bold fs-6">
-                        <i class="bi bi-shield-fill-check me-1"></i> Central Examination Authority • 2026
+                    <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-3 py-2 rounded-pill fw-bold fs-6">
+                        <i class="bi bi-shield-fill-check me-1"></i> {{ config.site_name|default:"Central Examination Authority • 2026" }}
                     </span>
                 </div>
 
                 <h1 class="display-4 fw-bold font-display text-dark mb-3">
-                    Unified Candidate <span class="text-gradient">Registration & Examination</span> Portal
+                    Unified Candidate <span class="text-primary">Registration & Examination</span> Portal
                 </h1>
                 
                 <p class="fs-5 text-muted col-md-10 mx-auto mb-4 lh-base">
-                    Single-window digital gateway for authentic application submission, instant fee settlement, biometric verification, and automated e-hall ticket issuance.
+                    Single-window digital gateway for authentic application submission, instant fee settlement, live biometric QR verification, and automated e-hall ticket issuance.
                 </p>
 
-                <div class="d-flex justify-content-center gap-3 flex-wrap">
-                    <a href="{% url 'register' %}" class="btn btn-modern btn-lg px-4 py-3 shadow">
-                        <i class="bi bi-pencil-fill me-2"></i> New Registration
-                    </a>
-                    <a href="{% url 'candidate_login' %}" class="btn btn-outline-dark btn-lg px-4 py-3 rounded-3 fw-semibold">
-                        <i class="bi bi-person-badge-fill me-2"></i> Candidate Login
-                    </a>
-                    <a href="{% url 'track_status' %}" class="btn btn-light btn-lg px-4 py-3 border rounded-3 fw-semibold text-secondary">
-                        <i class="bi bi-search me-2"></i> Track Application
-                    </a>
+                <!-- Symmetric Action Button Layout -->
+                <div class="d-flex flex-column align-items-center gap-3 mt-4">
+                    <!-- Row 1: Candidate Actions -->
+                    <div class="d-flex justify-content-center gap-2 flex-wrap">
+                        <a href="{% url 'register' %}" class="btn btn-primary px-4 py-2.5 rounded-pill shadow-sm fw-bold d-inline-flex align-items-center gap-2">
+                            <i class="bi bi-pencil-fill"></i> New Registration
+                        </a>
+                        <a href="{% url 'candidate_login' %}" class="btn btn-outline-dark px-4 py-2.5 rounded-pill fw-semibold d-inline-flex align-items-center gap-2 bg-white">
+                            <i class="bi bi-person-badge-fill"></i> Candidate Login
+                        </a>
+                        <a href="{% url 'track_status' %}" class="btn btn-light px-4 py-2.5 rounded-pill border fw-semibold text-secondary d-inline-flex align-items-center gap-2 bg-white">
+                            <i class="bi bi-search"></i> Track Application
+                        </a>
+                    </div>
+
+                    <!-- Row 2: Authority & Staff Portals -->
+                    <div class="d-flex justify-content-center gap-2 flex-wrap">
+                        <a href="{% url 'staff_login' %}" class="btn px-4 py-2 rounded-pill fw-bold text-white shadow-sm d-inline-flex align-items-center gap-2" style="background: #0f172a; border: 1px solid #334155; font-size: 13px;">
+                            <span style="color: #fbbf24;">🛡️</span> Staff / In-Charge Portal
+                        </a>
+                        <a href="{% url 'admin:index' %}" class="btn px-4 py-2 rounded-pill fw-bold text-white shadow-sm d-inline-flex align-items-center gap-2" style="background: #1e1b4b; border: 1px solid #4338ca; font-size: 13px;">
+                            <span>👑</span> Master Admin Portal
+                        </a>
+                    </div>
                 </div>
 
             </div>
         </div>
     </div>
 
-    <!-- 4 Primary Interactive Animated Cards -->
+    <!-- 5 Primary Interactive Cards -->
     <div class="row g-4 text-center mb-5">
         
         <!-- Card 1: Registration -->
-        <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-delay="100">
+        <div class="col-lg col-md-6" data-aos="fade-up" data-aos-delay="100">
             <div class="feature-box h-100 d-flex flex-column justify-content-between">
                 <div>
                     <div class="icon-wrapper bg-primary-subtle text-primary">
                         <i class="bi bi-journal-plus fs-2"></i>
                     </div>
-                    <h5 class="fw-bold mb-2 font-display text-dark">1. Online Application</h5>
-                    <p class="small text-muted mb-4">Submit qualification scores, upload documents, and choose test cities.</p>
+                    <h5 class="fw-bold mb-2 font-display text-dark">1. Registration</h5>
+                    <p class="small text-muted mb-4">Submit qualification scores, upload documents &amp; pick test centers.</p>
                 </div>
                 <a href="{% url 'register' %}" class="btn btn-outline-primary btn-sm rounded-pill fw-semibold py-2">
                     Start Form <i class="bi bi-arrow-up-right ms-1"></i>
@@ -171,14 +215,14 @@
         </div>
 
         <!-- Card 2: Status Tracking -->
-        <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-delay="200">
+        <div class="col-lg col-md-6" data-aos="fade-up" data-aos-delay="200">
             <div class="feature-box h-100 d-flex flex-column justify-content-between">
                 <div>
                     <div class="icon-wrapper bg-info-subtle text-info">
                         <i class="bi bi-radar fs-2"></i>
                     </div>
-                    <h5 class="fw-bold mb-2 font-display text-dark">2. Real-Time Status</h5>
-                    <p class="small text-muted mb-4">Check transaction confirmations, application lock, and verification status.</p>
+                    <h5 class="fw-bold mb-2 font-display text-dark">2. Track Status</h5>
+                    <p class="small text-muted mb-4">Check fee confirmation, allotting status &amp; application lock.</p>
                 </div>
                 <a href="{% url 'track_status' %}" class="btn btn-outline-info btn-sm rounded-pill fw-semibold py-2">
                     Track Record <i class="bi bi-arrow-up-right ms-1"></i>
@@ -186,31 +230,47 @@
             </div>
         </div>
 
-        <!-- Card 3: Admit Card -->
-        <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-delay="300">
+        <!-- Card 3: Admit Card / Scorecard -->
+        <div class="col-lg col-md-6" data-aos="fade-up" data-aos-delay="300">
             <div class="feature-box h-100 d-flex flex-column justify-content-between">
                 <div>
                     <div class="icon-wrapper bg-success-subtle text-success">
                         <i class="bi bi-qr-code-scan fs-2"></i>
                     </div>
-                    <h5 class="fw-bold mb-2 font-display text-dark">3. E-Hall Ticket</h5>
-                    <p class="small text-muted mb-4">Download official CBT admit card with electronic verification barcode.</p>
+                    <h5 class="fw-bold mb-2 font-display text-dark">3. Admit / Result</h5>
+                    <p class="small text-muted mb-4">Download official CBT admit card &amp; verified scorecard statement.</p>
                 </div>
                 <a href="{% url 'candidate_login' %}" class="btn btn-outline-success btn-sm rounded-pill fw-semibold py-2">
-                    Get Admit Card <i class="bi bi-arrow-up-right ms-1"></i>
+                    Access Portal <i class="bi bi-arrow-up-right ms-1"></i>
                 </a>
             </div>
         </div>
 
-        <!-- Card 4: Helpdesk -->
-        <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-delay="400">
+        <!-- Card 4: In-Charge & Staff Console -->
+        <div class="col-lg col-md-6" data-aos="fade-up" data-aos-delay="400">
+            <div class="feature-box h-100 d-flex flex-column justify-content-between" style="border-color: rgba(99, 102, 241, 0.4); background: #fafafa;">
+                <div>
+                    <div class="icon-wrapper bg-dark text-warning">
+                        <i class="bi bi-shield-shaded fs-2"></i>
+                    </div>
+                    <h5 class="fw-bold mb-2 font-display text-dark">4. Center Console</h5>
+                    <p class="small text-muted mb-4">Live QR scanner, shift attendance registers &amp; bench slips.</p>
+                </div>
+                <a href="{% url 'staff_login' %}" class="btn btn-dark btn-sm rounded-pill fw-semibold py-2">
+                    Staff Login <i class="bi bi-arrow-up-right ms-1"></i>
+                </a>
+            </div>
+        </div>
+
+        <!-- Card 5: Helpdesk -->
+        <div class="col-lg col-md-6" data-aos="fade-up" data-aos-delay="500">
             <div class="feature-box h-100 d-flex flex-column justify-content-between">
                 <div>
                     <div class="icon-wrapper bg-danger-subtle text-danger">
                         <i class="bi bi-headset fs-2"></i>
                     </div>
-                    <h5 class="fw-bold mb-2 font-display text-dark">4. Grievance Desk</h5>
-                    <p class="small text-muted mb-4">Raise support tickets for transaction disputes or correction requests.</p>
+                    <h5 class="fw-bold mb-2 font-display text-dark">5. Grievance Desk</h5>
+                    <p class="small text-muted mb-4">Raise support tickets for transaction disputes or corrections.</p>
                 </div>
                 <a href="{% url 'helpdesk' %}" class="btn btn-outline-danger btn-sm rounded-pill fw-semibold py-2">
                     Raise Ticket <i class="bi bi-arrow-up-right ms-1"></i>
@@ -221,7 +281,7 @@
     </div>
 
     <!-- Application Lifecycle Steps -->
-    <div class="card card-stylish p-4 p-md-5 mb-4" data-aos="fade-up">
+    <div class="card border-0 shadow-sm p-4 p-md-5 mb-4 rounded-4" data-aos="fade-up" style="background: #ffffff; border: 1px solid #e2e8f0 !important;">
         <div class="text-center mb-4">
             <span class="badge bg-primary-subtle text-primary px-3 py-1 rounded-pill fw-semibold small">Workflow Guide</span>
             <h3 class="fw-bold font-display text-dark mt-2 mb-1">Simple 4-Step Registration Process</h3>
@@ -233,7 +293,7 @@
                 <div class="step-pill h-100">
                     <span class="badge bg-primary text-white rounded-circle p-2 mb-2">01</span>
                     <h6 class="fw-bold mb-1">Fill Details</h6>
-                    <p class="small text-muted mb-0">Personal, Academic & Center preferences.</p>
+                    <p class="small text-muted mb-0">Personal, Academic &amp; Center preferences.</p>
                 </div>
             </div>
             <div class="col-md-3 col-6">

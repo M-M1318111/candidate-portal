@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Candidate Desk / Bench Slips — CEA 2026</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @media print {
+            .no-print { display: none !important; }
+            body { background: #fff !important; margin: 0; padding: 0; }
+            .page-break { page-break-after: always; }
+            @page { size: A4 portrait; margin: 10mm 8mm; }
+        }
+    </style>
+</head>
+<body class="bg-slate-100 font-sans p-4 min-h-screen text-slate-900">
+
+    <!-- Top Filter Controls -->
+    <div class="no-print max-w-6xl mx-auto bg-white p-5 rounded-2xl shadow-sm border border-slate-200 mb-6">
+        <div class="flex justify-between items-center pb-4 border-b border-slate-100 mb-4">
+            <div>
+                <h1 class="text-xl font-bold text-slate-800 flex items-center gap-2">
+                    <span>🪑</span> Candidate Desk / Bench Slip Generator (UP Board Style)
+                </h1>
+                <p class="text-xs text-slate-500">
+                    {% if is_superuser %}
+                        <span class="text-blue-600 font-bold">👑 Master Admin:</span> All Centers Accessible
+                    {% else %}
+                        <span class="text-emerald-600 font-bold">🛡️ Center In-Charge:</span> Restricted to <b>{{ assigned_center.center_name }}</b>
+                    {% endif %}
+                </p>
+            </div>
+            {% if candidates %}
+            <button onclick="window.print()" class="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-xl shadow-md flex items-center gap-2">
+                <span>🖨️</span> Print Bench Slips
+            </button>
+            {% endif %}
+        </div>
+
+        <form method="GET" class="grid grid-cols-1 md:grid-cols-4 gap-3">
+            <div>
+                <label class="block text-xs font-semibold text-slate-600 mb-1">Select Center</label>
+                <select name="center" required class="w-full text-xs p-2.5 bg-slate-50 border border-slate-300 rounded-lg">
+                    {% if is_superuser %}
+                        <option value="">-- Choose Center --</option>
+                    {% endif %}
+                    {% for c in centers %}
+                        <option value="{{ c.id }}" {% if selected_center_id == c.id %}selected{% endif %}>{{ c.center_name }} ({{ c.city }})</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div>
+                <label class="block text-xs font-semibold text-slate-600 mb-1">Exam Date</label>
+                <select name="date" required class="w-full text-xs p-2.5 bg-slate-50 border border-slate-300 rounded-lg">
+                    <option value="">-- Choose Date --</option>
+                    {% for dt in dates %}
+                        <option value="{{ dt }}" {% if selected_date == dt %}selected{% endif %}>{{ dt }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div>
+                <label class="block text-xs font-semibold text-slate-600 mb-1">Exam Shift</label>
+                <select name="shift" required class="w-full text-xs p-2.5 bg-slate-50 border border-slate-300 rounded-lg">
+                    <option value="">-- Choose Shift --</option>
+                    {% for sh in shifts %}
+                        <option value="{{ sh }}" {% if selected_shift == sh %}selected{% endif %}>{{ sh }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="flex items-end">
+                <button type="submit" class="w-full p-2.5 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold rounded-lg">
+                    Generate Slips →
+                </button>
+            </div>
+        </form>
+    </div>
+
+    {% if selected_center %}
+    <!-- Grid of Bench Slips (4 per A4 page) -->
+    <div class="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-4">
+        {% for cand in candidates %}
+        <div class="bg-white border-2 border-dashed border-slate-400 p-4 rounded-xl flex flex-col justify-between relative">
+            
+            <!-- Slip Header -->
+            <div class="text-center border-b border-slate-300 pb-2 mb-2">
+                <p class="text-[10px] uppercase tracking-wider font-bold text-slate-600">Central Examination Authority — 2026</p>
+                <h3 class="text-xs font-black uppercase text-slate-900">EXAMINATION DESK / BENCH SLIP</h3>
+            </div>
+
+            <!-- Content Body -->
+            <div class="flex gap-4 items-center">
+                <!-- Candidate Photo -->
+                <div class="w-24 h-28 border border-slate-300 rounded overflow-hidden flex-shrink-0 bg-slate-50 flex items-center justify-center">
+                    {% if cand.photo %}
+                        <img src="{{ cand.photo.url }}" class="w-full h-full object-cover">
+                    {% else %}
+                        <span class="text-[10px] text-slate-400">NO PHOTO</span>
+                    {% endif %}
+                </div>
+
+                <!-- Details Column -->
+                <div class="flex-1 text-xs space-y-1">
+                    <div class="bg-blue-50 border border-blue-200 p-1.5 rounded">
+                        <span class="text-[10px] text-blue-700 font-semibold block uppercase">CBT Roll Number</span>
+                        <strong class="text-base text-blue-900 font-mono tracking-wide">{{ cand.roll_number|default:"PENDING" }}</strong>
+                    </div>
+
+                    <p class="font-bold text-slate-900 text-sm leading-none mt-1">{{ cand.full_name }}</p>
+                    <p class="text-slate-600 text-[11px]">Father: {{ cand.father_name }}</p>
+                    <p class="text-slate-500 text-[10px]">Reg: {{ cand.registration_no }} | Cat: <b>{{ cand.category }}</b> ({{ cand.gender }})</p>
+                </div>
+            </div>
+
+            <!-- Slip Footer Info -->
+            <div class="mt-3 pt-2 border-t border-slate-200 text-[10px] text-slate-600 flex justify-between items-center">
+                <div>
+                    <b>Date:</b> {{ cand.exam_date }}<br>
+                    <b>Shift:</b> {{ cand.exam_shift }}
+                </div>
+                <div class="text-right">
+                    <b>Center:</b> {{ selected_center.center_code }}<br>
+                    <span class="text-[9px] text-slate-400">Paste on Desk Top-Left</span>
+                </div>
+            </div>
+
+        </div>
+        {% empty %}
+        <div class="col-span-2 p-8 text-center text-slate-500 bg-white rounded-xl">
+            No allotted candidates found for this shift selection.
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+</body>
+</html>

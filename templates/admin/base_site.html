@@ -1,0 +1,90 @@
+{% extends 'unfold/layouts/base.html' %}
+
+{% block extrahead %}
+{{ block.super }}
+<style>
+    /* =======================================================
+       1. NEO-GLASS CAPSULE CHECKBOX (MODERN & UNIQUE)
+       ======================================================= */
+    input[type="checkbox"] {
+        appearance: none !important;
+        -webkit-appearance: none !important;
+        width: 20px !important;
+        height: 20px !important;
+        min-width: 20px !important;
+        min-height: 20px !important;
+        border-radius: 6px !important;
+        background: #ffffff !important;
+        border: 2px solid #475569 !important;
+        cursor: pointer !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        margin: 0 !important;
+        vertical-align: middle !important;
+        position: relative !important;
+        box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.08) !important;
+        transition: all 0.2s ease !important;
+    }
+
+    /* Hover Interaction */
+    input[type="checkbox"]:hover {
+        border-color: #6366f1 !important;
+        background: #f8fafc !important;
+        transform: scale(1.05) !important;
+    }
+
+    /* Checked State */
+    input[type="checkbox"]:checked {
+        background: #4f46e5 !important;
+        border-color: #4338ca !important;
+    }
+
+    /* Vector Tick Mark */
+    input[type="checkbox"]:checked::after {
+        content: "" !important;
+        display: block !important;
+        width: 5px !important;
+        height: 10px !important;
+        border: solid #ffffff !important;
+        border-width: 0 2.5px 2.5px 0 !important;
+        transform: rotate(45deg) translate(-1px, -1px) !important;
+    }
+
+    /* =======================================================
+       2. EYE-FRIENDLY SOOTHING ADMIN INTERFACE
+       ======================================================= */
+    html, body {
+        background-color: #f8fafc !important;
+        color: #0f172a !important;
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+    }
+
+    /* Inputs and Selects */
+    input[type="text"], input[type="password"], input[type="email"], select, textarea {
+        background-color: #ffffff !important;
+        border: 1.5px solid #cbd5e1 !important;
+        color: #0f172a !important;
+        border-radius: 8px !important;
+        padding: 8px 12px !important;
+    }
+    input[type="text"]:focus, select:focus, textarea:focus {
+        border-color: #6366f1 !important;
+        box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15) !important;
+    }
+
+    /* Buttons */
+    button[type="submit"], .button-primary, .bg-primary-600 {
+        background: linear-gradient(135deg, #4f46e5 0%, #4338ca 100%) !important;
+        border: 1px solid #4338ca !important;
+        border-radius: 8px !important;
+        color: #ffffff !important;
+        font-weight: 600 !important;
+    }
+
+    /* Data Table Rows */
+    tr:hover td {
+        background-color: #f8fafc !important;
+    }
+</style>
+{% endblock %}

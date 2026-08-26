@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live Gate Entry & Biometric QR Scanner — CEA 2026</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- HTML5-QRCode Fast High-Performance Library -->
+    <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+    <style>
+        .scanner-laser {
+            position: absolute;
+            left: 5%;
+            right: 5%;
+            height: 3px;
+            background: #38bdf8;
+            box-shadow: 0 0 15px #38bdf8;
+            animation: scanning 2s infinite ease-in-out alternate;
+            border-radius: 9999px;
+        }
+        @keyframes scanning {
+            0% { top: 10%; opacity: 0.2; }
+            50% { opacity: 1; }
+            100% { top: 88%; opacity: 0.2; }
+        }
+    </style>
+</head>
+<body class="bg-slate-900 text-slate-100 font-sans min-h-screen flex flex-col">
+
+    <!-- Top Navigation Header -->
+    <header class="bg-slate-800 border-b border-slate-700 px-6 py-4 flex justify-between items-center shadow-lg">
+        <div class="flex items-center gap-3">
+            <a href="{% url 'incharge_dashboard' %}" class="p-2 bg-slate-700 hover:bg-slate-600 rounded-xl text-xs font-bold transition">← Dashboard</a>
+            <div>
+                <h1 class="text-base font-bold text-white flex items-center gap-2">
+                    <span>📷</span> Biometric & Gate Entry QR Terminal
+                </h1>
+                <p class="text-xs text-sky-400 font-medium">
+                    {% if is_superuser %}
+                        👑 Master Universal Gate Access
+                    {% else %}
+                        🛡️ Center: {{ assigned_center.center_name }} ({{ assigned_center.center_code }})
+                    {% endif %}
+                </p>
+            </div>
+        </div>
+        <div class="flex items-center gap-3">
+            <span id="scan-counter" class="px-3 py-1 bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 rounded-full text-xs font-bold">
+                Scanned Today: 0
+            </span>
+        </div>
+    </header>
+
+    <!-- Main Live Scanner Interface -->
+    <main class="flex-1 max-w-6xl w-full mx-auto p-4 md:p-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
+        
+        <!-- Left: Camera Viewport -->
+        <div class="lg:col-span-6 flex flex-col gap-4">
+            <div class="bg-slate-800 border border-slate-700 rounded-2xl p-4 shadow-xl flex flex-col items-center relative overflow-hidden">
+                <div class="w-full flex justify-between items-center mb-3">
+                    <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Live Camera Stream</span>
+                    <button id="torch-btn" onclick="toggleTorch()" class="hidden px-2.5 py-1 bg-slate-700 hover:bg-slate-600 text-[11px] rounded-lg text-slate-200">
+                        🔦 Flashlight
+                    </button>
+                </div>
+
+                <!-- Video Viewport Container -->
+                <div class="w-full h-80 bg-black rounded-xl overflow-hidden relative flex items-center justify-center border-2 border-slate-600">
+                    <div id="qr-reader" class="w-full h-full"></div>
+                    <div id="laser-line" class="scanner-laser hidden"></div>
+                </div>
+
+                <!-- Scanner Controls -->
+                <div class="w-full mt-4 flex gap-3">
+                    <button id="start-scan-btn" onclick="startScanning()" class="flex-1 py-3 bg-sky-500 hover:bg-sky-600 text-white text-xs font-bold rounded-xl shadow-lg transition">
+                        ▶ Start Camera Scanner
+                    </button>
+                    <button id="stop-scan-btn" onclick="stopScanning()" class="hidden flex-1 py-3 bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold rounded-xl shadow-lg transition">
+                        ⏹ Stop Scanner
+                    </button>
+                </div>
+
+                <!-- Manual Input Fallback -->
+                <div class="w-full mt-4 pt-4 border-t border-slate-700 flex gap-2">
+                    <input type="text" id="manual-reg" placeholder="Enter Reg No / Roll No manually..." class="flex-1 px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-xs text-white focus:outline-none focus:border-sky-500">
+                    <button onclick="verifyManual()" class="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white text-xs font-bold rounded-xl">Verify</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right: Verification Result Card -->
+        <div class="lg:col-span-6">
+            <div id="result-box" class="bg-slate-800 border border-slate-700 rounded-2xl p-6 shadow-xl h-full flex flex-col justify-center items-center text-center">
+                <div class="w-16 h-16 rounded-full bg-slate-700 flex items-center justify-center text-2xl mb-4">
+                    🔍
+                </div>
+                <h3 class="text-sm font-bold text-slate-300">Ready for Scan</h3>
+                <p class="text-xs text-slate-500 mt-1 max-w-xs">Point the camera at candidate's Admit Card QR Code to verify admission and mark presence.</p>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Audio Beep Effects -->
+    <audio id="beep-success" src="https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3" preload="auto"></audio>
+    <audio id="beep-error" src="https://assets.mixkit.co/active_storage/sfx/2874/2874-preview.mp3" preload="auto"></audio>
+
+    <script>
+        let html5QrCode = null;
+        let scannedCount = 0;
+        let isProcessing = false;
+
+        function startScanning() {
+            html5QrCode = new Html5Qrcode("qr-reader");
+            const config = { fps: 15, qrbox: { width: 250, height: 250 }, aspectRatio: 1.0 };
+
+            Html5Qrcode.getCameras().then(cameras => {
+                if (cameras && cameras.length) {
+                    const cameraId = cameras[cameras.length - 1].id; // Prefer back camera
+                    html5QrCode.start(
+                        cameraId,
+                        config,
+                        (decodedText) => onScanSuccess(decodedText),
+                        (errorMessage) => {}
+                    ).then(() => {
+                        document.getElementById('start-scan-btn').classList.add('hidden');
+                        document.getElementById('stop-scan-btn').classList.remove('hidden');
+                        document.getElementById('laser-line').classList.remove('hidden');
+                    });
+                }
+            }).catch(err => alert("Camera permission error: " + err));
+        }
+
+        function stopScanning() {
+            if (html5QrCode) {
+                html5QrCode.stop().then(() => {
+                    document.getElementById('start-scan-btn').classList.remove('hidden');
+                    document.getElementById('stop-scan-btn').classList.add('hidden');
+                    document.getElementById('laser-line').classList.add('hidden');
+                });
+            }
+        }
+
+        function onScanSuccess(decodedText) {
+            if (isProcessing) return;
+            isProcessing = true;
+            processVerification(decodedText);
+            setTimeout(() => { isProcessing = false; }, 2500); // 2.5s cooldown
+        }
+
+        function verifyManual() {
+            const val = document.getElementById('manual-reg').value.trim();
+            if (val) processVerification(val);
+        }
+
+        function processVerification(queryData) {
+            fetch(`/staff/api/verify-candidate/?reg_no=${encodeURIComponent(queryData)}`)
+                .then(res => res.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        document.getElementById('beep-success').play();
+                        scannedCount++;
+                        document.getElementById('scan-counter').innerText = `Scanned Today: ${scannedCount}`;
+                        renderCandidateCard(data.data, data.already_checked_in, data.entry_time);
+                    } else {
+                        document.getElementById('beep-error').play();
+                        renderErrorCard(data.message);
+                    }
+                })
+                .catch(err => renderErrorCard("Network communication failed."));
+        }
+
+        function renderCandidateCard(cand, alreadyChecked, entryTime) {
+            const photoSrc = cand.photo_url || 'https://via.placeholder.com/150';
+            const statusBadge = alreadyChecked 
+                ? `<span class="px-3 py-1 bg-amber-500/20 text-amber-300 border border-amber-500/30 rounded-full text-[11px] font-bold">⚠️ ALREADY VERIFIED</span>`
+                : `<span class="px-3 py-1 bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 rounded-full text-[11px] font-bold">✅ ENTRY APPROVED (PRESENT)</span>`;
+
+            document.getElementById('result-box').innerHTML = `
+                <div class="w-full text-left animate-fade-in">
+                    <div class="flex justify-between items-center pb-3 border-b border-slate-700">
+                        <span class="text-xs font-bold text-slate-400 uppercase">Verification Passed</span>
+                        ${statusBadge}
+                    </div>
+
+                    <div class="flex gap-4 items-center mt-4">
+                        <img src="${photoSrc}" class="w-24 h-28 object-cover rounded-xl border-2 border-sky-500 shadow-md">
+                        <div class="flex-1 space-y-1">
+                            <h2 class="text-base font-black text-white">${cand.full_name}</h2>
+                            <p class="text-xs text-slate-400">Father: <b>${cand.father_name}</b></p>
+                            <div class="flex gap-2 text-[11px] font-mono mt-1">
+                                <span class="bg-slate-700 px-2 py-0.5 rounded text-sky-300">Roll: ${cand.roll_number}</span>
+                                <span class="bg-slate-700 px-2 py-0.5 rounded text-slate-300">Reg: ${cand.registration_no}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-2 mt-4 text-xs bg-slate-900/60 p-3 rounded-xl border border-slate-700">
+                        <div><span class="text-slate-500">Category:</span> <b>${cand.category} (${cand.gender})</b></div>
+                        <div><span class="text-slate-500">DOB:</span> <b>${cand.dob}</b></div>
+                        <div><span class="text-slate-500">Date:</span> <b>${cand.exam_date}</b></div>
+                        <div><span class="text-slate-500">Shift:</span> <b>${cand.exam_shift}</b></div>
+                        <div class="col-span-2 pt-2 border-t border-slate-800 text-sky-400 text-[11px]">
+                            📍 Center: <b>${cand.allotted_center}</b>
+                        </div>
+                    </div>
+
+                    <p class="text-[10px] text-slate-500 text-right mt-3">Verified At: ${entryTime}</p>
+                </div>
+            `;
+        }
+
+        function renderErrorCard(msg) {
+            document.getElementById('result-box').innerHTML = `
+                <div class="w-16 h-16 rounded-full bg-rose-500/20 text-rose-400 flex items-center justify-center text-3xl mb-4 border border-rose-500/30">
+                    ✕
+                </div>
+                <h3 class="text-sm font-black text-rose-400 uppercase tracking-wide">Verification Denied</h3>
+                <p class="text-xs text-slate-300 mt-2 font-semibold max-w-sm">${msg}</p>
+            `;
+        }
+    </script>
+</body>
+</html>

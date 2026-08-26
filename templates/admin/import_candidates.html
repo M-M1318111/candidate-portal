@@ -1,0 +1,83 @@
+{% extends "admin/base_site.html" %}
+
+{% block content %}
+<div style="max-width: 900px; margin: 25px auto; background: #ffffff; border: 1.5px solid #cbd5e1; border-radius: 16px; padding: 30px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);">
+    
+    <div style="margin-bottom: 20px; border-bottom: 1px solid #f1f5f9; padding-bottom: 14px;">
+        <h2 style="font-size: 20px; font-weight: 800; color: #0f172a; margin: 0 0 4px 0;">
+            📥 Universal CSV / Excel Bulk Importer & Data Management Hub
+        </h2>
+        <p style="color: #64748b; font-size: 13px; margin: 0;">
+            Step 1 me sample CSV format download karein, data fill karein aur Step 2 me upload karein.
+        </p>
+    </div>
+
+    <!-- Step 1: Downloads -->
+    <div style="margin-bottom: 25px;">
+        <div style="font-size: 12px; font-weight: 800; color: #334155; text-transform: uppercase; margin-bottom: 10px;">
+            Step 1: Download Required Template (.CSV):
+        </div>
+        
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px;">
+            <a href="{% url 'admin:candidate_sample_csv' %}" style="display: block; padding: 10px 12px; background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 8px; text-decoration: none;">
+                <div style="font-weight: 800; color: #2563eb; font-size: 12px;">🎓 1. Candidate Applications</div>
+            </a>
+            <a href="{% url 'admin:centers_sample_csv' %}" style="display: block; padding: 10px 12px; background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 8px; text-decoration: none;">
+                <div style="font-weight: 800; color: #0284c7; font-size: 12px;">🏢 2. Exam Centers</div>
+            </a>
+            <a href="{% url 'admin:keys_sample_csv' %}" style="display: block; padding: 10px 12px; background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 8px; text-decoration: none;">
+                <div style="font-weight: 800; color: #d97706; font-size: 12px;">🔑 3. Answer Keys</div>
+            </a>
+            <a href="{% url 'admin:objections_sample_csv' %}" style="display: block; padding: 10px 12px; background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 8px; text-decoration: none;">
+                <div style="font-weight: 800; color: #dc2626; font-size: 12px;">⚖️ 4. Candidate Objections</div>
+            </a>
+            <a href="{% url 'admin:grievances_sample_csv' %}" style="display: block; padding: 10px 12px; background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 8px; text-decoration: none;">
+                <div style="font-weight: 800; color: #7c3aed; font-size: 12px;">🎫 5. Grievance Tickets</div>
+            </a>
+            <a href="{% url 'admin:marks_sample_csv' %}" style="display: block; padding: 10px 12px; background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 8px; text-decoration: none;">
+                <div style="font-weight: 800; color: #16a34a; font-size: 12px;">🎯 6. Result Marks Entry</div>
+            </a>
+            <a href="{% url 'admin:settings_sample_csv' %}" style="display: block; padding: 10px 12px; background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 8px; text-decoration: none;">
+                <div style="font-weight: 800; color: #475569; font-size: 12px;">⚙️ 7. Portal Settings</div>
+            </a>
+        </div>
+    </div>
+
+    <!-- Step 2: Upload -->
+    <form method="POST" enctype="multipart/form-data" style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 22px;">
+        {% csrf_token %}
+        
+        <div style="margin-bottom: 16px;">
+            <label style="display: block; font-weight: 700; font-size: 13px; color: #1e293b; margin-bottom: 6px;">
+                Step 2: Select Section To Update:
+            </label>
+            <select name="import_type" required style="width: 100%; padding: 10px; border: 1.5px solid #cbd5e1; border-radius: 8px; font-size: 13px; font-weight: 600; background: #ffffff;">
+                <option value="candidates">🎓 1. Candidate Applications (Biodata & Contact)</option>
+                <option value="centers">🏢 2. Exam Centers (Allotment Capacity)</option>
+                <option value="keys">🔑 3. Provisional & Revised Answer Keys</option>
+                <option value="objections">⚖️ 4. Candidate Objections & Challenges</option>
+                <option value="grievances">🎫 5. Grievance Tickets (Helpdesk Queries)</option>
+                <option value="marks">🎯 6. Result Entry (CBT Marks Evaluation)</option>
+                <option value="settings">⚙️ 7. Global Portal Settings (Site Name & Helplines)</option>
+            </select>
+        </div>
+
+        <div style="margin-bottom: 20px;">
+            <label style="display: block; font-weight: 700; font-size: 13px; color: #1e293b; margin-bottom: 6px;">
+                Step 3: Select .CSV File to Upload:
+            </label>
+            <input type="file" name="candidate_file" accept=".csv" required style="display: block; width: 100%; padding: 10px; border: 2px dashed #94a3b8; border-radius: 8px; background: #ffffff; font-size: 13px;">
+        </div>
+
+        <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #e2e8f0; padding-top: 16px;">
+            <a href="/admin/" style="padding: 8px 18px; border: 1px solid #cbd5e1; background: #ffffff; color: #475569; border-radius: 6px; font-size: 13px; font-weight: 600; text-decoration: none;">
+                Cancel / Return
+            </a>
+            <button type="submit" style="padding: 10px 24px; background: #2563eb; color: #ffffff; border: none; border-radius: 8px; font-size: 13px; font-weight: 800; cursor: pointer;">
+                🚀 Process & Bulk Update
+            </button>
+        </div>
+
+    </form>
+</div>
+{% endblock %}

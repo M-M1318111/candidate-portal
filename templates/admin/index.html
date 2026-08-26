@@ -1,0 +1,53 @@
+{% extends "admin/index.html" %}
+
+{% block content %}
+    <!-- 🚀 1-CLICK CENTRALIZED BULK CSV & EXCEL IMPORTER HUB -->
+    <div style="background: #ffffff; border: 1.5px solid #2563eb; border-radius: 14px; padding: 22px 25px; margin-bottom: 25px; box-shadow: 0 4px 10px rgba(37,99,235,0.08);">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; margin-bottom: 16px;">
+            <div>
+                <h2 style="font-size: 18px; font-weight: 800; color: #0f172a; margin: 0 0 4px 0;">
+                    📥 Master CSV / Excel Bulk Data Operations Console
+                </h2>
+                <p style="color: #64748b; font-size: 13px; margin: 0;">
+                    Download official templates & upload batch data for all 7 portal modules in 1-click.
+                </p>
+            </div>
+            
+            <a href="{% url 'admin:candidate_import_sheet' %}" style="padding: 10px 22px; background: #2563eb; color: #ffffff !important; border-radius: 8px; font-size: 13px; font-weight: 800; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 2px 5px rgba(37,99,235,0.3);">
+                🚀 Open 7-in-1 Bulk CSV Importer Hub &rarr;
+            </a>
+        </div>
+
+        <!-- Direct Sample Downloads Grid -->
+        <div style="border-top: 1px solid #f1f5f9; padding-top: 15px;">
+            <div style="font-size: 11px; font-weight: 800; color: #64748b; text-transform: uppercase; margin-bottom: 10px;">
+                Direct Download Sample Templates (.CSV):
+            </div>
+            <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+                <a href="{% url 'admin:candidate_sample_csv' %}" style="padding: 6px 12px; background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 11px; font-weight: 700; color: #2563eb; text-decoration: none;">
+                    📄 Candidates CSV
+                </a>
+                <a href="{% url 'admin:centers_sample_csv' %}" style="padding: 6px 12px; background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 11px; font-weight: 700; color: #0284c7; text-decoration: none;">
+                    🏢 Centers CSV
+                </a>
+                <a href="{% url 'admin:keys_sample_csv' %}" style="padding: 6px 12px; background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 11px; font-weight: 700; color: #d97706; text-decoration: none;">
+                    🔑 Answer Keys CSV
+                </a>
+                <a href="{% url 'admin:objections_sample_csv' %}" style="padding: 6px 12px; background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 11px; font-weight: 700; color: #dc2626; text-decoration: none;">
+                    ⚖️ Objections CSV
+                </a>
+                <a href="{% url 'admin:grievances_sample_csv' %}" style="padding: 6px 12px; background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 11px; font-weight: 700; color: #7c3aed; text-decoration: none;">
+                    🎫 Grievances CSV
+                </a>
+                <a href="{% url 'admin:marks_sample_csv' %}" style="padding: 6px 12px; background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 11px; font-weight: 700; color: #16a34a; text-decoration: none;">
+                    🎯 CBT Marks CSV
+                </a>
+                <a href="{% url 'admin:settings_sample_csv' %}" style="padding: 6px 12px; background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 11px; font-weight: 700; color: #475569; text-decoration: none;">
+                    ⚙️ Settings CSV
+                </a>
+            </div>
+        </div>
+    </div>
+
+    {{ block.super }}
+{% endblock %}

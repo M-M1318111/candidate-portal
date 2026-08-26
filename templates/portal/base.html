@@ -153,7 +153,19 @@
                     <li class="nav-item">
                         <a class="nav-link text-white-50 px-2 fw-medium" href="{% url 'helpdesk' %}"><i class="bi bi-headset me-1"></i> Helpdesk</a>
                     </li>
-                    <li class="nav-item ms-lg-3 mt-2 mt-lg-0">
+                    
+                    <!-- 🌐 Language Toggle Button -->
+                    <li class="nav-item ms-lg-2">
+                        <a href="{% url 'toggle_language' %}" class="btn btn-outline-light btn-sm fw-bold px-3 rounded-pill">
+                            {% if request.session.portal_lang == 'hi' %}
+                                🇬🇧 English
+                            {% else %}
+                                🇮🇳 हिंदी
+                            {% endif %}
+                        </a>
+                    </li>
+
+                    <li class="nav-item ms-lg-2 mt-2 mt-lg-0">
                         <a class="btn btn-outline-light btn-sm px-3 rounded-3 fw-semibold" href="{% url 'candidate_login' %}">
                             <i class="bi bi-box-arrow-in-right me-1"></i> Candidate Login
                         </a>

@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Result Evaluation & Marks Desk — CEA 2026</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-100 font-sans p-4 md:p-6 min-h-screen text-slate-900">
+
+    <!-- Header & Navigation -->
+    <div class="max-w-7xl mx-auto bg-white p-5 rounded-2xl shadow-sm border border-slate-200 mb-6">
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 pb-4 border-b border-slate-100">
+            <div>
+                <a href="{% url 'incharge_dashboard' %}" class="text-xs font-bold text-sky-600 hover:underline mb-1 inline-block">&larr; Back to Console</a>
+                <h1 class="text-xl font-bold text-slate-800 flex items-center gap-2">
+                    <span>🎯</span> Result Evaluation & Marks Entry Desk
+                </h1>
+                <p class="text-xs text-slate-500 mt-0.5">Enter candidate exam scores, compute percentage, and declare official scorecard status.</p>
+            </div>
+            
+            {% if candidates %}
+            <div class="flex gap-2">
+                <form method="POST" action="{% url 'bulk_publish_results' %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="center_id" value="{{ selected_center_id }}">
+                    <input type="hidden" name="date" value="{{ selected_date }}">
+                    <input type="hidden" name="shift" value="{{ selected_shift }}">
+                    <input type="hidden" name="action" value="publish">
+                    <button type="submit" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl shadow transition flex items-center gap-1.5">
+                        <span>📢</span> Publish All Results
+                    </button>
+                </form>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Filter Form & CSV Upload -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 mt-4">
+            <form method="GET" class="lg:col-span-8 grid grid-cols-1 md:grid-cols-4 gap-3">
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 mb-1">Center</label>
+                    <select name="center" required class="w-full text-xs p-2.5 bg-slate-50 border border-slate-300 rounded-xl">
+                        {% if is_superuser %}<option value="">-- Choose Center --</option>{% endif %}
+                        {% for c in centers %}
+                            <option value="{{ c.id }}" {% if selected_center_id == c.id %}selected{% endif %}>{{ c.center_name }} ({{ c.city }})</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 mb-1">Date</label>
+                    <select name="date" required class="w-full text-xs p-2.5 bg-slate-50 border border-slate-300 rounded-xl">
+                        <option value="">-- Choose Date --</option>
+                        {% for dt in dates %}
+                            <option value="{{ dt }}" {% if selected_date == dt %}selected{% endif %}>{{ dt }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 mb-1">Shift</label>
+                    <select name="shift" required class="w-full text-xs p-2.5 bg-slate-50 border border-slate-300 rounded-xl">
+                        <option value="">-- Choose Shift --</option>
+                        {% for sh in shifts %}
+                            <option value="{{ sh }}" {% if selected_shift == sh %}selected{% endif %}>{{ sh }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="flex items-end">
+                    <button type="submit" class="w-full p-2.5 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold rounded-xl transition">
+                        Fetch Candidates &rarr;
+                    </button>
+                </div>
+            </form>
+
+            <!-- Bulk CSV Upload Box -->
+            <div class="lg:col-span-4 bg-slate-50 p-3 rounded-xl border border-slate-200">
+                <form method="POST" enctype="multipart/form-data" class="flex flex-col gap-2">
+                    {% csrf_token %}
+                    <label class="text-[11px] font-bold text-slate-700 flex justify-between">
+                        <span>Bulk CSV Upload</span>
+                        <span class="text-slate-400 font-normal">Cols: roll_number, marks_obtained</span>
+                    </label>
+                    <div class="flex gap-2">
+                        <input type="file" name="marks_csv" accept=".csv" required class="w-full text-[11px] p-1 bg-white border border-slate-300 rounded-lg">
+                        <button type="submit" class="px-3 py-1 bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold rounded-lg whitespace-nowrap">Upload</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Candidate Evaluation Table -->
+    {% if selected_center %}
+    <div class="max-w-7xl mx-auto bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+        <div class="p-4 bg-slate-50 border-b border-slate-200 flex justify-between items-center text-xs">
+            <span class="font-bold text-slate-700">Present Candidates ({{ candidates|length }})</span>
+            <span class="text-emerald-700 font-bold">Evaluated: {{ total_evaluated }} / {{ candidates|length }}</span>
+        </div>
+
+        <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs">
+                <thead>
+                    <tr class="bg-slate-100 text-slate-700 font-bold border-b border-slate-200 text-[11px] uppercase">
+                        <th class="p-3 text-center w-12">S.N.</th>
+                        <th class="p-3">Roll &amp; Reg Number</th>
+                        <th class="p-3">Candidate Details</th>
+                        <th class="p-3 text-center w-28">Marks Obtained</th>
+                        <th class="p-3 text-center w-24">Max Marks</th>
+                        <th class="p-3 text-center w-24">Percentage</th>
+                        <th class="p-3 text-center w-28">Status</th>
+                        <th class="p-3 text-center w-28">Action</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100">
+                    {% for cand in candidates %}
+                    <tr id="row-{{ cand.id }}" class="hover:bg-slate-50/80 transition">
+                        <td class="p-3 text-center font-bold text-slate-400">{{ forloop.counter }}</td>
+                        <td class="p-3 font-mono font-bold text-slate-900">
+                            {{ cand.roll_number }}<br>
+                            <span class="text-[10px] text-slate-400 font-normal">{{ cand.registration_no }}</span>
+                        </td>
+                        <td class="p-3 font-semibold text-slate-800">
+                            {{ cand.full_name }}<br>
+                            <span class="text-[10px] text-slate-500 font-normal">Cat: {{ cand.category }}</span>
+                        </td>
+                        <td class="p-3 text-center">
+                            <input type="number" step="0.5" id="marks-{{ cand.id }}" value="{{ cand.exam_marks_obtained|default:'' }}" placeholder="Marks" class="w-20 p-1.5 text-center font-mono font-bold text-xs bg-slate-50 border border-slate-300 rounded-lg focus:outline-none focus:border-sky-500">
+                        </td>
+                        <td class="p-3 text-center">
+                            <input type="number" id="total-{{ cand.id }}" value="{{ cand.exam_total_marks|default:'100' }}" class="w-16 p-1.5 text-center font-mono text-xs bg-slate-50 border border-slate-300 rounded-lg">
+                        </td>
+                        <td class="p-3 text-center font-mono font-bold text-slate-700" id="pct-{{ cand.id }}">
+                            {{ cand.exam_percentage|default:"--" }}%
+                        </td>
+                        <td class="p-3 text-center" id="status-{{ cand.id }}">
+                            {% if cand.is_result_declared %}
+                                {% if cand.exam_qualification_status == 'Qualified' %}
+                                    <span class="px-2.5 py-1 bg-emerald-100 text-emerald-800 font-bold rounded-full text-[10px]">QUALIFIED</span>
+                                {% else %}
+                                    <span class="px-2.5 py-1 bg-rose-100 text-rose-800 font-bold rounded-full text-[10px]">NOT QUALIFIED</span>
+                                {% endif %}
+                            {% else %}
+                                <span class="text-slate-400 text-[10px]">Pending</span>
+                            {% endif %}
+                        </td>
+                        <td class="p-3 text-center">
+                            <button type="button" onclick="saveMarks('{{ cand.id }}')" id="btn-{{ cand.id }}" class="px-3 py-1.5 bg-sky-600 hover:bg-sky-700 text-white font-bold rounded-lg text-[11px] shadow transition">
+                                Save
+                            </button>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="8" class="p-8 text-center text-slate-400">
+                            No present candidates found for this shift. Ensure attendance is marked via QR Scanner first.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% endif %}
+
+    <script type="text/javascript">
+        function saveMarks(candId) {
+            var mInput = document.getElementById('marks-' + candId);
+            var tInput = document.getElementById('total-' + candId);
+            var btn = document.getElementById('btn-' + candId);
+            
+            var mVal = mInput ? mInput.value : '';
+            var tVal = tInput ? tInput.value : '100';
+
+            if (!mVal) {
+                alert('Please enter marks first.');
+                return;
+            }
+
+            btn.innerText = '...';
+            btn.disabled = true;
+
+            var fd = new FormData();
+            fd.append('candidate_id', candId);
+            fd.append('marks_obtained', mVal);
+            fd.append('total_marks', tVal);
+
+            var endpoint = '/staff/evaluation-desk/save-single/';
+
+            fetch(endpoint, {
+                method: 'POST',
+                body: fd
+            })
+            .then(function (response) {
+                return response.json();
+            })
+            .then(function (data) {
+                btn.disabled = false;
+                btn.innerText = 'Save';
+                if (data.status === 'success') {
+                    document.getElementById('pct-' + candId).innerText = data.percentage + '%';
+                    var cls = data.qualification_status === 'Qualified' ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800';
+                    var badge = '<span class="px-2.5 py-1 ' + cls + ' font-bold rounded-full text-[10px] uppercase">' + data.qualification_status + '</span>';
+                    document.getElementById('status-' + candId).innerHTML = badge;
+                } else {
+                    alert(data.message);
+                }
+            })
+            .catch(function (error) {
+                btn.disabled = false;
+                btn.innerText = 'Save';
+                alert('Error saving mark entry.');
+            });
+        }
+    </script>
+</body>
+</html>

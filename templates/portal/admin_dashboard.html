@@ -1,146 +1,251 @@
 {% extends 'portal/base.html' %}
 
-{% block title %}Executive Administration Control Center - 2026{% endblock %}
+{% block title %}Master Admin Command Console — CEA 2026{% endblock %}
 
 {% block content %}
 <style>
-    .stat-glow-card {
+    /* Dark Theme Core Styles */
+    .admin-console-wrapper {
+        background-color: #090d16;
+        color: #f1f5f9;
+        min-height: 100vh;
+        border-radius: 28px;
+        padding: 2rem 1.5rem;
+    }
+
+    .glass-card {
+        background: rgba(15, 23, 42, 0.75);
+        backdrop-filter: blur(16px);
+        border: 1px solid rgba(51, 65, 85, 0.6);
+        border-radius: 20px;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .glass-card:hover {
+        border-color: rgba(99, 102, 241, 0.45);
+        transform: translateY(-3px);
+        box-shadow: 0 16px 30px -10px rgba(0, 0, 0, 0.5);
+    }
+
+    .stat-tile {
+        position: relative;
+        overflow: hidden;
         border-radius: 18px;
         padding: 1.5rem;
-        color: white;
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
-        border: none;
+        background: rgba(15, 23, 42, 0.9);
+        border: 1px solid rgba(51, 65, 85, 0.7);
+        transition: transform 0.25s ease, box-shadow 0.25s ease;
     }
-    .stat-glow-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 15px 30px rgba(0,0,0,0.15);
+
+    .stat-tile:hover {
+        transform: translateY(-4px);
     }
-    .table-modern thead th {
-        background: #0f172a;
-        color: #f8fafc;
-        font-size: 12px;
-        letter-spacing: 0.5px;
-        text-transform: uppercase;
-        padding: 14px 12px;
-        border: none;
+
+    /* Modern Dark Table */
+    .table-dark-custom {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+        color: #cbd5e1;
     }
-    .table-modern tbody td {
-        vertical-align: middle;
-        padding: 14px 12px;
-        font-size: 13px;
-        border-color: #f1f5f9;
-    }
-    .table-modern tbody tr:hover {
-        background-color: #f8fafc;
-    }
-    .badge-pill-custom {
-        padding: 4px 10px;
-        border-radius: 9999px;
-        font-weight: 700;
+
+    .table-dark-custom thead th {
+        background: #0b1120;
+        color: #94a3b8;
         font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        padding: 14px 16px;
+        border-bottom: 1px solid #1e293b;
+        white-space: nowrap;
+    }
+
+    .table-dark-custom tbody tr {
+        background: transparent;
+        transition: background-color 0.2s ease;
+    }
+
+    .table-dark-custom tbody tr:hover {
+        background: rgba(30, 41, 59, 0.45);
+    }
+
+    .table-dark-custom tbody td {
+        padding: 14px 16px;
+        font-size: 12.5px;
+        vertical-align: middle;
+        border-bottom: 1px solid rgba(51, 65, 85, 0.35);
+    }
+
+    .badge-chip {
+        font-size: 11px;
+        font-weight: 700;
+        padding: 3px 9px;
+        border-radius: 9999px;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
     }
 </style>
 
-<div class="container-fluid px-4 my-4">
+<div class="admin-console-wrapper my-3">
     
-    <!-- Top Executive Header -->
-    <div class="card shadow-sm border-0 bg-white p-4 rounded-4 mb-4" data-aos="fade-down">
+    <!-- Top Executive Command Header -->
+    <div class="glass-card p-4 p-md-5 mb-4">
         <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
-            <div>
-                <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-3 py-1 rounded-pill fw-bold mb-2">
-                    <i class="bi bi-shield-lock-fill me-1"></i> Authorized Control Room
-                </span>
-                <h3 class="fw-bold font-display text-dark mb-0">Candidate Central Master Console</h3>
-                <p class="text-muted small mb-0">Live Application Records, Verification Hub, and Direct Document Dispenser</p>
+            <div class="d-flex align-items-center gap-3">
+                <div style="width: 58px; height: 58px; background: rgba(99, 102, 241, 0.15); border: 1.5px solid rgba(99, 102, 241, 0.35); border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 28px;">
+                    👑
+                </div>
+                <div>
+                    <div class="d-flex align-items-center gap-2 mb-1">
+                        <span class="badge bg-danger-subtle text-danger border border-danger-subtle px-2.5 py-0.5 rounded-pill fw-bold" style="font-size: 10px; letter-spacing: 0.5px;">
+                            MASTER ADMIN • MAXIMUM 2 RESTRICTION
+                        </span>
+                        <span class="text-secondary small">• Live Operational Console</span>
+                    </div>
+                    <h2 class="fw-bold text-white mb-0 font-display">Executive Command & Control Room</h2>
+                    <p class="text-secondary small mb-0">Candidate Allotments, Live Shifts, Verification Desk & Instant Mark Evaluation</p>
+                </div>
             </div>
-            <div class="d-flex gap-2">
-                <a href="/admin/" class="btn btn-outline-secondary btn-sm px-3 rounded-3 fw-semibold">
-                    <i class="bi bi-sliders me-1"></i> Django Native Panel
+
+            <div class="d-flex gap-2 flex-wrap">
+                <a href="/admin/" class="btn btn-outline-light btn-sm px-3 py-2 rounded-3 fw-semibold d-inline-flex align-items-center gap-1.5" style="border-color: #334155; font-size: 12px;">
+                    <i class="bi bi-sliders"></i> Django Native Panel
                 </a>
-                <a href="{% url 'home' %}" class="btn btn-dark btn-sm px-3 rounded-3 fw-semibold">
-                    <i class="bi bi-box-arrow-up-right me-1"></i> Public Portal
+                <a href="{% url 'home' %}" class="btn btn-sm px-3 py-2 rounded-3 fw-semibold text-white d-inline-flex align-items-center gap-1.5" style="background: #2563eb; font-size: 12px;">
+                    <i class="bi bi-globe2"></i> Public Portal
                 </a>
             </div>
         </div>
     </div>
 
-    <!-- 4 High-Impact Live Counter Badges -->
-    <div class="row g-3 mb-4" data-aos="fade-up">
+    <!-- 4 High-Impact Live Counter Tiles -->
+    <div class="row g-3 mb-4">
         
-        <!-- Card 1 -->
+        <!-- Tile 1: Total -->
         <div class="col-xl-3 col-sm-6">
-            <div class="stat-glow-card shadow" style="background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);">
+            <div class="stat-tile" style="border-left: 4px solid #3b82f6;">
                 <div class="d-flex justify-content-between align-items-center">
                     <div>
-                        <div class="text-uppercase small fw-bold opacity-75">Total Applicants</div>
-                        <h2 class="display-6 fw-bold mb-0 mt-1">{{ total_count }}</h2>
+                        <span class="text-secondary text-uppercase fw-bold" style="font-size: 11px; letter-spacing: 0.5px;">Total Applicants</span>
+                        <h2 class="fw-black text-white mb-0 mt-1">{{ total_count }}</h2>
                     </div>
-                    <div class="fs-1 opacity-50"><i class="bi bi-people-fill"></i></div>
+                    <div style="font-size: 32px; color: #3b82f6; opacity: 0.8;"><i class="bi bi-people-fill"></i></div>
                 </div>
             </div>
         </div>
 
-        <!-- Card 2 -->
+        <!-- Tile 2: Paid -->
         <div class="col-xl-3 col-sm-6">
-            <div class="stat-glow-card shadow" style="background: linear-gradient(135deg, #065f46 0%, #10b981 100%);">
+            <div class="stat-tile" style="border-left: 4px solid #10b981;">
                 <div class="d-flex justify-content-between align-items-center">
                     <div>
-                        <div class="text-uppercase small fw-bold opacity-75">Paid & Confirmed</div>
-                        <h2 class="display-6 fw-bold mb-0 mt-1">{{ paid_count }}</h2>
+                        <span class="text-secondary text-uppercase fw-bold" style="font-size: 11px; letter-spacing: 0.5px;">Fee Settled (PAID)</span>
+                        <h2 class="fw-black text-emerald-400 mb-0 mt-1" style="color: #34d399;">{{ paid_count }}</h2>
                     </div>
-                    <div class="fs-1 opacity-50"><i class="bi bi-patch-check-fill"></i></div>
+                    <div style="font-size: 32px; color: #10b981; opacity: 0.8;"><i class="bi bi-patch-check-fill"></i></div>
                 </div>
             </div>
         </div>
 
-        <!-- Card 3 -->
+        <!-- Tile 3: Pending -->
         <div class="col-xl-3 col-sm-6">
-            <div class="stat-glow-card shadow" style="background: linear-gradient(135deg, #92400e 0%, #f59e0b 100%);">
+            <div class="stat-tile" style="border-left: 4px solid #f59e0b;">
                 <div class="d-flex justify-content-between align-items-center">
                     <div>
-                        <div class="text-uppercase small fw-bold opacity-75">Fee Pending</div>
-                        <h2 class="display-6 fw-bold mb-0 mt-1">{{ unpaid_count }}</h2>
+                        <span class="text-secondary text-uppercase fw-bold" style="font-size: 11px; letter-spacing: 0.5px;">Payment Pending</span>
+                        <h2 class="fw-black text-amber-400 mb-0 mt-1" style="color: #fbbf24;">{{ unpaid_count }}</h2>
                     </div>
-                    <div class="fs-1 opacity-50"><i class="bi bi-hourglass-split"></i></div>
+                    <div style="font-size: 32px; color: #f59e0b; opacity: 0.8;"><i class="bi bi-hourglass-split"></i></div>
                 </div>
             </div>
         </div>
 
-        <!-- Card 4 -->
+        <!-- Tile 4: Grievances -->
         <div class="col-xl-3 col-sm-6">
-            <div class="stat-glow-card shadow" style="background: linear-gradient(135deg, #991b1b 0%, #ef4444 100%);">
+            <div class="stat-tile" style="border-left: 4px solid #ef4444;">
                 <div class="d-flex justify-content-between align-items-center">
                     <div>
-                        <div class="text-uppercase small fw-bold opacity-75">Open Grievances</div>
-                        <h2 class="display-6 fw-bold mb-0 mt-1">{{ total_tickets }}</h2>
+                        <span class="text-secondary text-uppercase fw-bold" style="font-size: 11px; letter-spacing: 0.5px;">Support Tickets</span>
+                        <h2 class="fw-black text-rose-400 mb-0 mt-1" style="color: #f87171;">{{ total_tickets }}</h2>
                     </div>
-                    <div class="fs-1 opacity-50"><i class="bi bi-headset"></i></div>
+                    <div style="font-size: 32px; color: #ef4444; opacity: 0.8;"><i class="bi bi-headset"></i></div>
                 </div>
             </div>
         </div>
 
     </div>
 
-    <!-- Complete Real-Time Candidate Grid -->
-    <div class="card shadow-sm border-0 rounded-4 overflow-hidden bg-white" data-aos="fade-up" data-aos-delay="100">
-        <div class="p-3 px-4 border-bottom d-flex justify-content-between align-items-center bg-light">
-            <h5 class="fw-bold mb-0 text-dark"><i class="bi bi-table me-2 text-primary"></i>All Registered Candidates Master Roster</h5>
-            <span class="badge bg-secondary rounded-pill px-3">{{ total_count }} Records Listed</span>
-        </div>
+    <!-- Quick Operations & Dispatch Tools -->
+    <div class="row g-3 mb-4">
         
+        <div class="col-md-4">
+            <div class="glass-card p-3 d-flex align-items-center justify-content-between">
+                <div class="d-flex align-items-center gap-3">
+                    <span class="fs-4 text-warning">⚡</span>
+                    <div>
+                        <h6 class="fw-bold text-white mb-0" style="font-size: 13px;">Auto-Allotment Hub</h6>
+                        <small class="text-secondary">Batch schedule centers & shifts</small>
+                    </div>
+                </div>
+                <a href="/admin/portal/candidate/" class="btn btn-sm btn-outline-primary px-3 rounded-pill" style="font-size: 11px; font-weight: 700;">Launch</a>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="glass-card p-3 d-flex align-items-center justify-content-between">
+                <div class="d-flex align-items-center gap-3">
+                    <span class="fs-4 text-emerald-400">🎯</span>
+                    <div>
+                        <h6 class="fw-bold text-white mb-0" style="font-size: 13px;">Result & Scorecard Desk</h6>
+                        <small class="text-secondary">Upload marks for present students</small>
+                    </div>
+                </div>
+                <a href="/admin/portal/presentcandidateresult/" class="btn btn-sm btn-outline-success px-3 rounded-pill" style="font-size: 11px; font-weight: 700;">Evaluate</a>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="glass-card p-3 d-flex align-items-center justify-content-between">
+                <div class="d-flex align-items-center gap-3">
+                    <span class="fs-4 text-info">🪑</span>
+                    <div>
+                        <h6 class="fw-bold text-white mb-0" style="font-size: 13px;">Desk Slips & Registers</h6>
+                        <small class="text-secondary">UP Board style bench slips</small>
+                    </div>
+                </div>
+                <a href="{% url 'bench_slips' %}" target="_blank" class="btn btn-sm btn-outline-info px-3 rounded-pill" style="font-size: 11px; font-weight: 700;">Print Slips</a>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Complete Master Candidate Roster -->
+    <div class="glass-card overflow-hidden">
+        <div class="p-3 px-4 d-flex justify-content-between align-items-center" style="background: rgba(11, 17, 32, 0.85); border-bottom: 1px solid #1e293b;">
+            <div class="d-flex align-items-center gap-2">
+                <span class="text-primary fs-5"><i class="bi bi-person-lines-fill"></i></span>
+                <h5 class="fw-bold text-white mb-0" style="font-size: 14px;">Central Candidate Master Register</h5>
+            </div>
+            <span class="badge rounded-pill text-white px-3 py-1.5" style="background: #1e293b; border: 1px solid #334155; font-size: 11px;">
+                {{ total_count }} Total Records
+            </span>
+        </div>
+
         <div class="table-responsive">
-            <table class="table table-modern table-hover align-middle mb-0">
+            <table class="table-dark-custom">
                 <thead>
                     <tr>
                         <th class="text-center">Photo</th>
                         <th>Reg / Roll No</th>
                         <th>Candidate Profile</th>
-                        <th>Contact Details</th>
+                        <th>Contact Info</th>
                         <th>Category</th>
-                        <th>Qualification & Marks</th>
-                        <th>Allotted Center</th>
-                        <th>Status</th>
-                        <th class="text-center">Direct Downloads</th>
+                        <th>Allotted Center & Shift</th>
+                        <th>Payment</th>
+                        <th>Attendance</th>
+                        <th class="text-center">Action Downloads</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -148,67 +253,87 @@
                     <tr>
                         <td class="text-center">
                             {% if c.photo %}
-                                <img src="{{ c.photo.url }}" style="width: 44px; height: 50px; object-fit: cover; border-radius: 8px; border: 1.5px solid #3b82f6; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                                <img src="{{ c.photo.url }}" style="width: 42px; height: 48px; object-fit: cover; border-radius: 6px; border: 1.5px solid #3b82f6;">
                             {% else %}
-                                <span class="badge bg-light text-muted border">No Pic</span>
+                                <span class="badge bg-secondary" style="font-size: 9px;">NO PIC</span>
                             {% endif %}
                         </td>
+                        
                         <td>
-                            <strong class="text-primary font-monospace">{{ c.registration_no }}</strong><br>
-                            <span class="text-muted small">Roll: <strong class="text-dark">{{ c.roll_number|default:"Pending" }}</strong></span>
+                            <strong class="text-indigo-400 font-monospace" style="color: #818cf8;">{{ c.registration_no }}</strong><br>
+                            <span class="text-secondary" style="font-size: 11px;">Roll: <b class="text-white">{{ c.roll_number|default:"Pending" }}</b></span>
                         </td>
+
                         <td>
-                            <div class="fw-bold text-dark">{{ c.full_name }}</div>
-                            <div class="text-muted small">Father: {{ c.father_name }} | DOB: {{ c.dob }}</div>
+                            <div class="fw-bold text-white">{{ c.full_name }}</div>
+                            <div class="text-secondary" style="font-size: 11px;">Father: {{ c.father_name }} | DOB: {{ c.dob }}</div>
                         </td>
+
                         <td>
-                            <div><i class="bi bi-envelope-at me-1 text-secondary"></i>{{ c.email }}</div>
-                            <div class="text-info fw-semibold small"><i class="bi bi-phone me-1"></i>+91-{{ c.phone }}</div>
+                            <div class="text-slate-300">{{ c.email }}</div>
+                            <div class="fw-bold" style="color: #38bdf8; font-size: 11px;">+91-{{ c.phone }}</div>
                         </td>
+
                         <td>
-                            <span class="badge badge-pill-custom {% if c.category == 'General' or c.category == 'UR' %}bg-secondary{% elif c.category == 'OBC' %}bg-primary{% elif c.category == 'SC' or c.category == 'ST' %}bg-warning text-dark{% else %}bg-info{% endif %}">
+                            <span class="badge-chip" style="background: rgba(51, 65, 85, 0.6); color: #f1f5f9; border: 1px solid #475569;">
                                 {{ c.category }}
                             </span>
                         </td>
+
                         <td>
-                            <strong>{{ c.qualification_class }}</strong> ({{ c.passing_year|default:"-" }})<br>
-                            <span class="text-success fw-bold">{{ c.percentage }}%</span> 
-                            <span class="text-muted small">({{ c.obtained_marks }}/{{ c.total_marks }})</span>
+                            <div class="fw-semibold text-white" style="font-size: 12px;">{{ c.allotted_center.center_name|default:c.exam_center }}</div>
+                            <span class="text-secondary" style="font-size: 11px;">{{ c.exam_date }} • {{ c.exam_shift }}</span>
                         </td>
-                        <td>
-                            <span class="fw-semibold text-dark small">{{ c.center_choice_1|default:"Main Examination Center" }}</span>
-                        </td>
+
                         <td>
                             {% if c.is_paid %}
-                                <span class="badge bg-success-subtle text-success border border-success-subtle px-3 py-2 rounded-pill fw-bold">
+                                <span class="badge-chip" style="background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.4);">
                                     ✓ PAID (₹{{ c.fee_amount }})
                                 </span>
                             {% else %}
-                                <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle px-3 py-2 rounded-pill fw-bold">
+                                <span class="badge-chip" style="background: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.4);">
                                     ⏳ PENDING
                                 </span>
                             {% endif %}
                         </td>
+
+                        <td>
+                            {% if c.is_present %}
+                                <span class="badge-chip" style="background: rgba(16, 185, 129, 0.2); color: #10b981; border: 1px solid #10b981;">
+                                    🟢 PRESENT
+                                </span>
+                            {% else %}
+                                <span class="badge-chip" style="background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3);">
+                                    🔴 ABSENT
+                                </span>
+                            {% endif %}
+                        </td>
+
                         <td class="text-center">
-                            <div class="d-inline-flex gap-2">
-                                <a href="{% url 'download_pdf' c.registration_no %}" target="_blank" class="btn btn-outline-primary btn-sm rounded-3 fw-semibold">
-                                    <i class="bi bi-file-earmark-pdf"></i> Slip
+                            <div class="d-inline-flex gap-1.5">
+                                <a href="{% url 'download_pdf' c.registration_no %}" target="_blank" class="btn btn-sm px-2.5 py-1 rounded text-white" style="background: #4f46e5; font-size: 11px; font-weight: 700;">
+                                    📄 Slip
                                 </a>
-                                {% if c.is_paid %}
-                                    <a href="{% url 'download_admit_card' c.registration_no %}" target="_blank" class="btn btn-success btn-sm rounded-3 fw-semibold shadow-sm">
-                                        <i class="bi bi-ticket-perforated"></i> Admit Card
+                                {% if c.is_paid and c.is_admit_card_released %}
+                                    <a href="{% url 'download_admit_card' c.registration_no %}" target="_blank" class="btn btn-sm px-2.5 py-1 rounded text-white" style="background: #059669; font-size: 11px; font-weight: 700;">
+                                        🎟️ Admit
                                     </a>
                                 {% else %}
-                                    <button class="btn btn-light btn-sm text-muted rounded-3 border" disabled title="Payment Pending">
+                                    <span class="btn btn-sm px-2 py-1 rounded text-secondary" style="background: #1e293b; font-size: 10px; border: 1px solid #334155;">
                                         🔒 Locked
-                                    </button>
+                                    </span>
+                                {% endif %}
+                                {% if c.is_result_declared %}
+                                    <a href="{% url 'download_scorecard' c.registration_no %}" target="_blank" class="btn btn-sm px-2.5 py-1 rounded text-white" style="background: #d97706; font-size: 11px; font-weight: 700;">
+                                        📊 Result
+                                    </a>
                                 {% endif %}
                             </div>
                         </td>
                     </tr>
                     {% empty %}
                     <tr>
-                        <td colspan="9" class="text-center py-5 text-muted">
+                        <td colspan="9" class="text-center py-5 text-secondary">
                             <i class="bi bi-inbox fs-1 d-block mb-2 opacity-50"></i>
                             No candidate registrations found in the system yet.
                         </td>

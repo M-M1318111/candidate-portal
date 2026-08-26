@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Official Scorecard - {{ candidate.roll_number }}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <style>
+        @media print {
+            .no-print { display: none !important; }
+            body { background: #fff !important; margin: 0; padding: 0; }
+            .scorecard-container { box-shadow: none !important; border: 2px solid #0f172a !important; }
+        }
+        body {
+            background-color: #f1f5f9;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            color: #1e293b;
+        }
+        .scorecard-container {
+            max-width: 850px;
+            margin: 30px auto;
+            background: #ffffff;
+            border-radius: 16px;
+            border: 2px solid #cbd5e1;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            overflow: hidden;
+        }
+        .header-section {
+            background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%);
+            color: #ffffff;
+            padding: 24px 30px;
+            border-bottom: 4px solid #f59e0b;
+        }
+        .rank-card {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            border: 2px solid #f59e0b;
+            border-radius: 12px;
+            padding: 14px;
+            text-align: center;
+        }
+        .rank-card-cat {
+            background: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%);
+            border: 2px solid #0284c7;
+            border-radius: 12px;
+            padding: 14px;
+            text-align: center;
+        }
+        .data-table th {
+            background-color: #f8fafc;
+            color: #475569;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 700;
+        }
+        .status-badge-pass {
+            background-color: #dcfce7;
+            color: #15803d;
+            border: 2px solid #86efac;
+            font-size: 14px;
+            font-weight: 800;
+            padding: 6px 16px;
+            border-radius: 999px;
+            display: inline-block;
+        }
+        .status-badge-fail {
+            background-color: #fee2e2;
+            color: #991b1b;
+            border: 2px solid #fca5a5;
+            font-size: 14px;
+            font-weight: 800;
+            padding: 6px 16px;
+            border-radius: 999px;
+            display: inline-block;
+        }
+    </style>
+</head>
+<body>
+
+<!-- Floating Action Bar (Screen Only) -->
+<div class="container my-3 no-print text-center" style="max-width: 850px;">
+    <div class="d-flex justify-content-between align-items-center bg-white p-3 rounded-4 shadow-sm border">
+        <a href="{% url 'candidate_dashboard' %}" class="btn btn-outline-secondary fw-bold rounded-pill px-4">
+            <i class="bi bi-arrow-left me-1"></i> Back to Dashboard
+        </a>
+        <button onclick="window.print()" class="btn btn-primary fw-bold rounded-pill px-4 shadow-sm">
+            <i class="bi bi-printer-fill me-1"></i> Print / Save as PDF
+        </button>
+    </div>
+</div>
+
+<div class="scorecard-container">
+    
+    <!-- Top Header -->
+    <div class="header-section">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+            <div>
+                <span class="badge bg-warning text-dark fw-bold mb-2">OFFICIAL CBT SCORECARD 2026</span>
+                <h3 class="fw-bold mb-1">{{ config.board_name|default:"National Examination & Assessment Authority" }}</h3>
+                <p class="mb-0 text-white-50 small">Central Recruitment & Eligibility Computer Based Examination (CBT)</p>
+            </div>
+            <div class="text-end">
+                <div class="fs-1 text-warning opacity-75"><i class="bi bi-trophy-fill"></i></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="p-4 p-md-5">
+
+        <!-- Rankers Showcase Bar -->
+        <div class="row g-3 mb-4">
+            <div class="col-md-6">
+                <div class="rank-card shadow-sm">
+                    <span class="text-uppercase small fw-bold text-dark d-block">🏆 All India Rank (AIR)</span>
+                    <h2 class="fw-black text-dark mb-0 mt-1" style="font-weight: 900; color: #b45309;">
+                        #{{ rank|default:"1" }}
+                    </h2>
+                    <small class="text-muted">Among all appeared candidates</small>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="rank-card-cat shadow-sm">
+                    <span class="text-uppercase small fw-bold text-dark d-block">🎖️ Category Rank ({{ candidate.category }})</span>
+                    <h2 class="fw-black mb-0 mt-1" style="font-weight: 900; color: #0369a1;">
+                        #{{ category_rank|default:"1" }}
+                    </h2>
+                    <small class="text-muted">Rank within {{ candidate.category }} category</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- Candidate Credentials Block -->
+        <div class="card border rounded-4 mb-4 overflow-hidden shadow-none bg-light">
+            <div class="card-body p-4">
+                <div class="row align-items-center">
+                    
+                    <!-- Candidate Bio -->
+                    <div class="col-md-9">
+                        <div class="row g-3">
+                            <div class="col-6 col-sm-4">
+                                <span class="text-muted small d-block">Candidate Name</span>
+                                <strong class="fs-6 text-dark">{{ candidate.full_name }}</strong>
+                            </div>
+                            <div class="col-6 col-sm-4">
+                                <span class="text-muted small d-block">Roll Number</span>
+                                <strong class="fs-6 text-primary">{{ candidate.roll_number|default:"Pending" }}</strong>
+                            </div>
+                            <div class="col-6 col-sm-4">
+                                <span class="text-muted small d-block">Application / Reg No</span>
+                                <strong>{{ candidate.registration_no }}</strong>
+                            </div>
+                            <div class="col-6 col-sm-4">
+                                <span class="text-muted small d-block">Father's Name</span>
+                                <strong>{{ candidate.father_name }}</strong>
+                            </div>
+                            <div class="col-6 col-sm-4">
+                                <span class="text-muted small d-block">Date of Birth</span>
+                                <strong>{{ candidate.dob }}</strong>
+                            </div>
+                            <div class="col-6 col-sm-4">
+                                <span class="text-muted small d-block">Gender / Category</span>
+                                <strong>{{ candidate.gender }} / {{ candidate.category }}</strong>
+                            </div>
+                            <div class="col-12">
+                                <span class="text-muted small d-block">Examination Center</span>
+                                <strong class="text-dark">{{ candidate.allotted_center.center_name|default:candidate.exam_center }} ({{ candidate.allotted_center.center_code|default:"Center Code 01" }})</strong>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Candidate Photo & QR -->
+                    <div class="col-md-3 text-center mt-3 mt-md-0 border-start ps-md-4">
+                        <div class="mx-auto border rounded-3 p-1 bg-white shadow-sm mb-2" style="width: 100px; height: 120px;">
+                            {% if photo_base64 %}
+                                <img src="{{ photo_base64 }}" class="w-100 h-100" style="object-fit: cover; border-radius: 4px;" alt="Candidate Photo">
+                            {% elif candidate.photo %}
+                                <img src="{{ candidate.photo.url }}" class="w-100 h-100" style="object-fit: cover; border-radius: 4px;" alt="Candidate Photo">
+                            {% else %}
+                                <div class="w-100 h-100 d-flex align-items-center justify-content-center bg-light text-muted small">No Photo</div>
+                            {% endif %}
+                        </div>
+                        {% if qr_code_base64 %}
+                            <img src="data:image/png;base64,{{ qr_code_base64 }}" style="width: 65px; height: 65px;" alt="QR Verification">
+                        {% endif %}
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <!-- Performance & Evaluation Details Table -->
+        <h6 class="fw-bold text-dark mb-3"><i class="bi bi-bar-chart-fill text-primary me-2"></i>Performance & Marks Breakdown</h6>
+        <div class="table-responsive mb-4">
+            <table class="table table-bordered align-middle text-center data-table mb-0">
+                <thead>
+                    <tr>
+                        <th>Subject / Paper</th>
+                        <th>Maximum Marks</th>
+                        <th>Marks Scored</th>
+                        <th>Percentage</th>
+                        <th>Performance Index</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="text-start fw-bold ps-3">Computer Based Test (CBT - General & Technical)</td>
+                        <td>{{ candidate.exam_total_marks|default:"100.0" }}</td>
+                        <td class="fw-bold text-primary fs-6">{{ candidate.exam_marks_obtained|default:"0.0" }}</td>
+                        <td class="fw-bold text-success">{{ candidate.exam_percentage|default:"0.0" }}%</td>
+                        <td>
+                            {% if candidate.exam_percentage >= 75 %}
+                                <span class="badge bg-success">Distinction</span>
+                            {% elif candidate.exam_percentage >= 40 %}
+                                <span class="badge bg-primary">Passed</span>
+                            {% else %}
+                                <span class="badge bg-danger">Below Cut-off</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Final Result Status Box -->
+        <div class="p-3 border rounded-4 bg-light d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
+            <div>
+                <span class="text-muted small d-block">Official Qualification Status</span>
+                <span class="small fw-semibold text-dark">Category Cut-off Cleared: Yes (Minimum 40% Required)</span>
+            </div>
+            <div>
+                {% if candidate.exam_qualification_status == "Qualified" or candidate.exam_qualification_status == "QUALIFIED" %}
+                    <span class="status-badge-pass"><i class="bi bi-check-circle-fill me-1"></i> QUALIFIED FOR NEXT ROUND</span>
+                {% else %}
+                    <span class="status-badge-fail"><i class="bi bi-x-circle-fill me-1"></i> NOT QUALIFIED</span>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Important Notes & Digital Signature -->
+        <div class="row align-items-end pt-3 border-top">
+            <div class="col-8">
+                <strong class="small text-muted d-block mb-1">Important Instructions:</strong>
+                <ul class="text-muted small ps-3 mb-0" style="font-size: 11px; line-height: 1.5;">
+                    <li>This scorecard is computer generated and digitally authenticated by the Examination Authority.</li>
+                    <li>Ranks are computed strictly on the basis of marks obtained in CBT 2026.</li>
+                    <li>Qualified candidates must carry this official scorecard during document verification.</li>
+                </ul>
+            </div>
+            <div class="col-4 text-center">
+                <div class="border-bottom border-dark pb-1 mb-1 mx-auto" style="max-width: 140px;">
+                    <span class="fw-bold small text-primary" style="font-family: 'Brush Script MT', cursive; font-size: 20px;">Exam Controller</span>
+                </div>
+                <span class="small fw-bold text-dark" style="font-size: 11px;">Controller of Examinations</span>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+</body>
+</html>

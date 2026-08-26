@@ -4,8 +4,7 @@ import os
 import random
 import requests
 from urllib.parse import urlparse
-from import_export.admin import ImportExportModelAdmin
-from unfold.admin import ModelAdmin
+
 from django.conf import settings
 from django.contrib import admin, messages
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin, GroupAdmin as BaseGroupAdmin
@@ -21,6 +20,8 @@ from django.urls import path, reverse
 from django.utils import timezone
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
+
+from import_export.admin import ImportExportModelAdmin
 
 try:
     from unfold.admin import ModelAdmin
@@ -144,6 +145,16 @@ class PresentCandidateResult(Candidate):
 
 @admin.register(PresentCandidateResult)
 class PresentCandidateResultAdmin(ModelAdmin, ImportExportModelAdmin):
+    # Unfold Action Button for Result Desk
+    actions_list = ["open_marks_importer_action"]
+
+    def open_marks_importer_action(self, request):
+        return redirect("admin:candidate_import_sheet")
+    open_marks_importer_action.attrs = {
+        "title": "📥 Bulk Upload Marks / CSV",
+        "icon": "upload_file",
+    }
+
     list_display = (
         'student_photo',
         'roll_number',
@@ -252,6 +263,16 @@ if admin.site.is_registered(Candidate):
 class CandidateAdmin(ModelAdmin, ImportExportModelAdmin):
     change_list_template = "admin/candidate_changelist.html"
 
+    # Unfold Action Button for Candidates Master Page
+    actions_list = ["open_csv_hub_button"]
+
+    def open_csv_hub_button(self, request):
+        return redirect("admin:candidate_import_sheet")
+    open_csv_hub_button.attrs = {
+        "title": "📥 1-Click CSV / Excel Bulk Importer",
+        "icon": "upload_file",
+    }
+
     list_display = (
         'student_photo',
         'registration_no',
@@ -266,7 +287,6 @@ class CandidateAdmin(ModelAdmin, ImportExportModelAdmin):
         'attendance_badge',
         'quick_downloads',
     )
-    pass
     list_editable = ('allotted_center', 'exam_date', 'exam_shift')
     list_display_links = ('registration_no', 'student_profile')
 

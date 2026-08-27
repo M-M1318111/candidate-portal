@@ -7,6 +7,7 @@ import uuid
 
 import qrcode
 import razorpay
+import requests
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
@@ -46,34 +47,61 @@ def get_client_ip(request):
     return ip
 
 
-# Safe Notification Dispatcher with Database Logging
+# Safe Notification Dispatcher with Dual Engine (HTTPS REST API + SMTP Fallback)
 def send_logged_email(subject, message, recipient_list):
+    resend_api_key = os.getenv("RESEND_API_KEY", "").strip()
+
     for recipient in recipient_list:
-        try:
-            send_mail(
-                subject=subject,
-                message=message,
-                from_email=settings.DEFAULT_FROM_EMAIL,
-                recipient_list=[recipient],
-                fail_silently=False
-            )
-            NotificationLog.objects.create(
-                recipient=recipient,
-                channel='EMAIL',
-                subject=subject,
-                message_body=message,
-                status='SENT'
-            )
-            print(f"✅ Real Email dispatched successfully to: {recipient}")
-        except Exception as e:
-            NotificationLog.objects.create(
-                recipient=recipient,
-                channel='EMAIL',
-                subject=subject,
-                message_body=message,
-                status='FAILED'
-            )
-            print(f"❌ Email dispatch FAILED to {recipient}. Error: {str(e)}")
+        email_sent = False
+
+        # 1. Primary: Direct HTTPS REST API (Bypasses Render Cloud SMTP Port Blocks)
+        if resend_api_key:
+            try:
+                response = requests.post(
+                    "https://api.resend.com/emails",
+                    headers={
+                        "Authorization": f"Bearer {resend_api_key}",
+                        "Content-Type": "application/json"
+                    },
+                    json={
+                        "from": "Central Examination Authority <onboarding@resend.dev>",
+                        "to": [recipient],
+                        "subject": subject,
+                        "text": message
+                    },
+                    timeout=8
+                )
+                if response.status_code in [200, 201, 202]:
+                    email_sent = True
+                    print(f"✅ Real Email successfully sent via HTTPS API to: {recipient}")
+                else:
+                    print(f"⚠️ Resend API Response Error ({response.status_code}): {response.text}")
+            except Exception as api_err:
+                print(f"⚠️ Resend API Dispatch Exception: {api_err}")
+
+        # 2. Fallback: Standard Django SMTP
+        if not email_sent:
+            try:
+                send_mail(
+                    subject=subject,
+                    message=message,
+                    from_email=settings.DEFAULT_FROM_EMAIL,
+                    recipient_list=[recipient],
+                    fail_silently=False
+                )
+                email_sent = True
+                print(f"✅ Real Email sent via SMTP to: {recipient}")
+            except Exception as smtp_err:
+                print(f"❌ SMTP Dispatch Failure (Cloud Port Blocked): {smtp_err}")
+
+        # Database Log
+        NotificationLog.objects.create(
+            recipient=recipient,
+            channel='EMAIL',
+            subject=subject,
+            message_body=message,
+            status='SENT' if email_sent else 'FAILED'
+        )
 
 
 def generate_otp():

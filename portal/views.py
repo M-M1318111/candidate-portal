@@ -64,6 +64,7 @@ def send_logged_email(subject, message, recipient_list):
                 message_body=message,
                 status='SENT'
             )
+            print(f"✅ Email successfully dispatched to: {recipient}")
         except Exception as e:
             NotificationLog.objects.create(
                 recipient=recipient,
@@ -167,7 +168,6 @@ def register_view(request):
     return render(request, 'portal/register.html', {'form': form, 'edit_mode': False})
 
 
-# --- Option 1: Profile Edit Restriction After Payment ---
 def edit_candidate_view(request, reg_no):
     candidate_obj = get_object_or_404(Candidate, registration_no=reg_no)
     if candidate_obj.is_paid:
@@ -260,7 +260,7 @@ def send_otp_view(request):
                     [target_value]
                 )
             except Exception as mail_err:
-                print(f"⚠️ SMTP Notice (Local Testing): {mail_err}")
+                print(f"⚠️ SMTP Notice: {mail_err}")
 
             return JsonResponse({'status': 'success', 'message': f'OTP sent to {target_value}'})
 
@@ -564,9 +564,7 @@ def live_attendance_analytics_view(request):
     return render(request, 'portal/live_attendance_analytics.html', context)
 
 
-# ==============================================================================
-# 🎯 1. LIVE GATE ENTRY & BIOMETRIC QR CAMERA SCANNER (With Audit Logging)
-# ==============================================================================
+# --- Biometric QR Camera Scanner ---
 @login_required(login_url='staff_login')
 def qr_scanner_view(request):
     if not request.user.is_staff:
@@ -621,7 +619,6 @@ def verify_candidate_api(request):
         candidate.entry_verified_at = timezone.now()
         candidate.save()
 
-        # Write Audit Log
         AuditLog.objects.create(
             user=request.user,
             action='ATTENDANCE_CHECKIN',
@@ -653,9 +650,7 @@ def verify_candidate_api(request):
     })
 
 
-# ==============================================================================
-# 📊 2. RESULT EVALUATION DESK & MARKS ENTRY
-# ==============================================================================
+# --- Result Evaluation Desk ---
 @login_required(login_url='staff_login')
 def result_evaluation_desk_view(request):
     if not request.user.is_staff:
@@ -695,7 +690,6 @@ def result_evaluation_desk_view(request):
                 is_present=True
             ).order_by('roll_number')
 
-    # Bulk CSV Upload
     if request.method == 'POST' and request.FILES.get('marks_csv'):
         csv_file = request.FILES['marks_csv']
         if not csv_file.name.endswith('.csv'):
@@ -901,14 +895,8 @@ def view_ticket_status_view(request):
         searched = True
         ticket = Grievance.objects.filter(ticket_id__iexact=t_id).first()
     return render(request, 'portal/ticket_status.html', {'ticket': ticket, 'searched': searched, 'ticket_id': t_id})
-def toggle_language_view(request):
-    current_lang = request.session.get('portal_lang', 'en')
-    # Toggle between 'en' (English) and 'hi' (Hindi)
-    request.session['portal_lang'] = 'hi' if current_lang == 'en' else 'en'
-    request.session.modified = True
-    
-    # Wapas usi page par redirect kar dein jahan se user ne toggle kiya tha
-    return redirect(request.META.get('HTTP_REFERER', 'home'))
+
+
 # --- Multi-Language Toggle View ---
 def toggle_language_view(request):
     current_lang = request.session.get('portal_lang', 'en')

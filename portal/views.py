@@ -46,7 +46,7 @@ def get_client_ip(request):
     return ip
 
 
-# Safe Notification Dispatcher with Database Logging (Option 2)
+# Safe Notification Dispatcher with Database Logging
 def send_logged_email(subject, message, recipient_list):
     for recipient in recipient_list:
         try:
@@ -64,7 +64,7 @@ def send_logged_email(subject, message, recipient_list):
                 message_body=message,
                 status='SENT'
             )
-            print(f"✅ Email successfully dispatched to: {recipient}")
+            print(f"✅ Real Email dispatched successfully to: {recipient}")
         except Exception as e:
             NotificationLog.objects.create(
                 recipient=recipient,
@@ -73,7 +73,7 @@ def send_logged_email(subject, message, recipient_list):
                 message_body=message,
                 status='FAILED'
             )
-            print(f"⚠️ Email dispatch error to {recipient}: {e}")
+            print(f"❌ Email dispatch FAILED to {recipient}. Error: {str(e)}")
 
 
 def generate_otp():
@@ -232,46 +232,44 @@ def payment_success_view(request, reg_no):
     return redirect('preview', reg_no=reg_no)
 
 
-# --- OTP Verification APIs ---
+# --- OTP Verification APIs (Strict Real Matching) ---
 @csrf_exempt
 def send_otp_view(request):
     if request.method != 'POST':
         return JsonResponse({'status': 'error', 'message': 'Invalid request method.'}, status=400)
     try:
-        otp_type = request.POST.get('type', '').strip()
+        otp_type = request.POST.get('type', '').strip().lower()
         target_value = request.POST.get('value', '').strip()
         otp = generate_otp()
 
         if otp_type == 'email':
-            request.session['email_otp'] = otp
-            request.session['email_otp_target'] = target_value
+            clean_email = target_value.lower()
+            request.session['email_otp'] = str(otp)
+            request.session['email_otp_target'] = clean_email
             request.session.modified = True
 
             print("\n" + "="*50)
-            print("📧 [EMAIL OTP GENERATED]")
-            print(f"Target : {target_value}")
+            print("📧 [REAL EMAIL OTP GENERATED]")
+            print(f"Target : {clean_email}")
             print(f"OTP    : {otp}")
             print("="*50 + "\n")
 
-            try:
-                send_logged_email(
-                    "Verification OTP - Registration",
-                    f"Your Verification OTP is: {otp}\nValid for 10 minutes.",
-                    [target_value]
-                )
-            except Exception as mail_err:
-                print(f"⚠️ SMTP Notice: {mail_err}")
+            send_logged_email(
+                "Verification OTP - Candidate Registration",
+                f"Dear Candidate,\n\nYour 6-digit Verification OTP for Central Examination Authority 2026 is:\n\n{otp}\n\nThis OTP is confidential and valid for 10 minutes.",
+                [clean_email]
+            )
 
-            return JsonResponse({'status': 'success', 'message': f'OTP sent to {target_value}'})
+            return JsonResponse({'status': 'success', 'message': f'OTP sent to {clean_email}'})
 
         elif otp_type == 'phone':
             clean_phone = ''.join(filter(str.isdigit, target_value))[-10:]
-            request.session['phone_otp'] = otp
-            request.session['phone_otp_target'] = target_value
+            request.session['phone_otp'] = str(otp)
+            request.session['phone_otp_target'] = clean_phone
             request.session.modified = True
 
             print("\n" + "="*50)
-            print("📱 [MOBILE SMS OTP GENERATED]")
+            print("📱 [REAL SMS OTP GENERATED]")
             print(f"Target : +91-{clean_phone}")
             print(f"OTP    : {otp}")
             print("="*50 + "\n")
@@ -286,17 +284,24 @@ def send_otp_view(request):
 @csrf_exempt
 def verify_otp_view(request):
     if request.method == 'POST':
-        otp_type = request.POST.get('type')
+        otp_type = request.POST.get('type', '').strip().lower()
         user_otp = request.POST.get('otp', '').strip()
         target_value = request.POST.get('value', '').strip()
-        
-        saved_otp = str(request.session.get(f'{otp_type}_otp'))
-        saved_target = str(request.session.get(f'{otp_type}_otp_target'))
 
-        if (saved_otp == user_otp and saved_target == target_value) or user_otp == "123456":
+        if otp_type == 'phone':
+            target_value = ''.join(filter(str.isdigit, target_value))[-10:]
+        elif otp_type == 'email':
+            target_value = target_value.lower()
+
+        saved_otp = str(request.session.get(f'{otp_type}_otp', ''))
+        saved_target = str(request.session.get(f'{otp_type}_otp_target', ''))
+
+        if saved_otp and saved_otp == user_otp and saved_target == target_value:
             request.session[f'{otp_type}_verified'] = True
+            request.session.modified = True
             return JsonResponse({'status': 'success', 'message': 'Verified successfully!'})
-        return JsonResponse({'status': 'error', 'message': 'Invalid OTP entered.'})
+
+        return JsonResponse({'status': 'error', 'message': 'Invalid or expired OTP. Please enter the correct OTP.'})
     return JsonResponse({'status': 'error', 'message': 'Invalid request.'})
 
 

@@ -21,8 +21,6 @@ from django.utils import timezone
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 
-from import_export.admin import ImportExportModelAdmin
-
 try:
     from unfold.admin import ModelAdmin
 except ImportError:
@@ -144,7 +142,7 @@ class PresentCandidateResult(Candidate):
 
 
 @admin.register(PresentCandidateResult)
-class PresentCandidateResultAdmin(ModelAdmin, ImportExportModelAdmin):
+class PresentCandidateResultAdmin(ModelAdmin):
     list_display = (
         'student_photo',
         'roll_number',
@@ -250,7 +248,7 @@ if admin.site.is_registered(Candidate):
 
 
 @admin.register(Candidate)
-class CandidateAdmin(ModelAdmin, ImportExportModelAdmin):
+class CandidateAdmin(ModelAdmin):
     change_list_template = "admin/candidate_changelist.html"
 
     list_display = (

@@ -145,16 +145,6 @@ class PresentCandidateResult(Candidate):
 
 @admin.register(PresentCandidateResult)
 class PresentCandidateResultAdmin(ModelAdmin, ImportExportModelAdmin):
-    # Unfold Action Button for Result Desk
-    actions_list = ["open_marks_importer_action"]
-
-    def open_marks_importer_action(self, request):
-        return redirect("admin:candidate_import_sheet")
-    open_marks_importer_action.attrs = {
-        "title": "📥 Bulk Upload Marks / CSV",
-        "icon": "upload_file",
-    }
-
     list_display = (
         'student_photo',
         'roll_number',
@@ -262,16 +252,6 @@ if admin.site.is_registered(Candidate):
 @admin.register(Candidate)
 class CandidateAdmin(ModelAdmin, ImportExportModelAdmin):
     change_list_template = "admin/candidate_changelist.html"
-
-    # Unfold Action Button for Candidates Master Page
-    actions_list = ["open_csv_hub_button"]
-
-    def open_csv_hub_button(self, request):
-        return redirect("admin:candidate_import_sheet")
-    open_csv_hub_button.attrs = {
-        "title": "📥 1-Click CSV / Excel Bulk Importer",
-        "icon": "upload_file",
-    }
 
     list_display = (
         'student_photo',
@@ -408,7 +388,6 @@ class CandidateAdmin(ModelAdmin, ImportExportModelAdmin):
 
         return super().changelist_view(request, extra_context=extra_context)
 
-    # --- CSV Hub URL Routing (All 7 Modules) ---
     def get_urls(self):
         urls = super().get_urls()
         custom_urls = [
@@ -493,7 +472,6 @@ class CandidateAdmin(ModelAdmin, ImportExportModelAdmin):
         writer.writerow(['Central Examination Authority 2026', 'Combined Entrance Examination (CEE-2026)', 'support@examauthority.gov.in', '+91-1800-2026-99', 'Admit Cards live on candidate dashboard.', '1'])
         return response
 
-    # Universal 7-in-1 Master CSV Importer Engine
     def import_master_sheet_view(self, request):
         if request.method == "POST" and request.FILES.get('candidate_file'):
             uploaded_file = request.FILES['candidate_file']
@@ -509,7 +487,6 @@ class CandidateAdmin(ModelAdmin, ImportExportModelAdmin):
                 reader = csv.DictReader(decoded_file)
                 success_count = 0
 
-                # 1. Candidates Master Import
                 if import_type == 'candidates':
                     for idx, row in enumerate(reader, start=2):
                         full_name = row.get('full_name', '').strip()
@@ -555,7 +532,6 @@ class CandidateAdmin(ModelAdmin, ImportExportModelAdmin):
                         success_count += 1
                     messages.success(request, f"✅ Successfully added {success_count} Candidates!")
 
-                # 2. Exam Centers Import
                 elif import_type == 'centers':
                     for row in reader:
                         code = row.get('center_code', '').strip()
@@ -578,7 +554,6 @@ class CandidateAdmin(ModelAdmin, ImportExportModelAdmin):
                             success_count += 1
                     messages.success(request, f"✅ Successfully imported/updated {success_count} Exam Centers!")
 
-                # 3. Answer Keys Import
                 elif import_type == 'keys':
                     for row in reader:
                         q_num = row.get('question_number', '').strip()
@@ -600,7 +575,6 @@ class CandidateAdmin(ModelAdmin, ImportExportModelAdmin):
                             success_count += 1
                     messages.success(request, f"✅ Successfully imported {success_count} Answer Key Questions!")
 
-                # 4. Candidate Objections Import
                 elif import_type == 'objections':
                     for row in reader:
                         reg_no = row.get('candidate_registration_no', '').strip()
@@ -623,7 +597,6 @@ class CandidateAdmin(ModelAdmin, ImportExportModelAdmin):
                                 success_count += 1
                     messages.success(request, f"✅ Successfully logged {success_count} Candidate Objections!")
 
-                # 5. Grievances Import
                 elif import_type == 'grievances':
                     for row in reader:
                         reg_no = row.get('registration_no', '').strip()
@@ -646,7 +619,6 @@ class CandidateAdmin(ModelAdmin, ImportExportModelAdmin):
                             success_count += 1
                     messages.success(request, f"✅ Successfully logged {success_count} Grievance Tickets!")
 
-                # 6. CBT Marks & Result Import
                 elif import_type == 'marks':
                     for row in reader:
                         identifier = (row.get('roll_number_or_registration_no') or row.get('roll_number') or row.get('registration_no') or '').strip()
@@ -665,7 +637,6 @@ class CandidateAdmin(ModelAdmin, ImportExportModelAdmin):
                                 success_count += 1
                     messages.success(request, f"✅ Successfully evaluated and updated {success_count} Candidate Scores!")
 
-                # 7. Global Settings Import
                 elif import_type == 'settings':
                     for row in reader:
                         setting = PortalSetting.objects.first() or PortalSetting()
@@ -1105,7 +1076,6 @@ class QuestionObjectionAdmin(ModelAdmin):
     status_badge.short_description = "Status"
 
 
-# --- Notification Log Admin Panel (Option 2 Integration) ---
 @admin.register(NotificationLog)
 class NotificationLogAdmin(ModelAdmin):
     list_display = ('sent_at', 'channel', 'recipient', 'subject', 'status_badge')

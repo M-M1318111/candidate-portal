@@ -47,39 +47,33 @@ def get_client_ip(request):
     return ip
 
 
-# Safe Notification Dispatcher with Dual Engine (HTTPS REST API + SMTP Fallback)
+# Safe Notification Dispatcher (Direct HTTPS Mail Relay - Delivers to ANY recipient)
 def send_logged_email(subject, message, recipient_list):
-    resend_api_key = os.getenv("RESEND_API_KEY", "").strip()
-
     for recipient in recipient_list:
         email_sent = False
 
-        # 1. Primary: Direct HTTPS REST API (Bypasses Render Cloud SMTP Port Blocks)
-        if resend_api_key:
-            try:
-                response = requests.post(
-                    "https://api.resend.com/emails",
-                    headers={
-                        "Authorization": f"Bearer {resend_api_key}",
-                        "Content-Type": "application/json"
-                    },
-                    json={
-                        "from": "Central Examination Authority <onboarding@resend.dev>",
-                        "to": [recipient],
-                        "subject": subject,
-                        "text": message
-                    },
-                    timeout=8
-                )
-                if response.status_code in [200, 201, 202]:
-                    email_sent = True
-                    print(f"✅ Real Email successfully sent via HTTPS API to: {recipient}")
-                else:
-                    print(f"⚠️ Resend API Response Error ({response.status_code}): {response.text}")
-            except Exception as api_err:
-                print(f"⚠️ Resend API Dispatch Exception: {api_err}")
+        # 1. Primary: Direct HTTPS API (Bypasses Render cloud SMTP port blocks)
+        try:
+            response = requests.post(
+                "https://api.web3forms.com/submit",
+                json={
+                    "access_key": "ea2c6cb5-f377-4c48-8df0-7d35368383f9",
+                    "from_name": "Central Examination Authority",
+                    "subject": subject,
+                    "to": recipient,
+                    "message": message,
+                },
+                timeout=8
+            )
+            if response.status_code == 200:
+                email_sent = True
+                print(f"✅ Real Email successfully delivered via Web API to: {recipient}")
+            else:
+                print(f"⚠️ Web API status code {response.status_code}: {response.text}")
+        except Exception as api_err:
+            print(f"⚠️ Web API Dispatch Exception: {api_err}")
 
-        # 2. Fallback: Standard Django SMTP
+        # 2. Fallback: Django SMTP
         if not email_sent:
             try:
                 send_mail(
@@ -90,11 +84,11 @@ def send_logged_email(subject, message, recipient_list):
                     fail_silently=False
                 )
                 email_sent = True
-                print(f"✅ Real Email sent via SMTP to: {recipient}")
+                print(f"✅ Email sent via SMTP to: {recipient}")
             except Exception as smtp_err:
-                print(f"❌ SMTP Dispatch Failure (Cloud Port Blocked): {smtp_err}")
+                print(f"❌ SMTP Failure (Port Blocked on Cloud): {smtp_err}")
 
-        # Database Log
+        # Database Notification Log
         NotificationLog.objects.create(
             recipient=recipient,
             channel='EMAIL',

@@ -47,14 +47,18 @@ def get_client_ip(request):
     return ip
 
 
-# Safe Notification Dispatcher (Direct HTTPS Mail Relay - Delivers to ANY recipient)
+# Safe Notification Dispatcher (Multi-Provider HTTPS Relay + Standard Fallback)
 def send_logged_email(subject, message, recipient_list):
+    brevo_api_key = os.getenv("BREVO_API_KEY", "").strip()
+    resend_api_key = os.getenv("RESEND_API_KEY", "").strip()
+    sender_email = os.getenv("EMAIL_HOST_USER", "mayanksingh9889659765@gmail.com").strip()
+
     for recipient in recipient_list:
         email_sent = False
 
-        # 1. Primary: Direct HTTPS API (Bypasses Render cloud SMTP port blocks)
+        # 1. Primary: Direct HTTPS API (Delivers across cloud networks)
         try:
-            response = requests.post(
+            res = requests.post(
                 "https://api.web3forms.com/submit",
                 json={
                     "access_key": "ea2c6cb5-f377-4c48-8df0-7d35368383f9",
@@ -65,15 +69,58 @@ def send_logged_email(subject, message, recipient_list):
                 },
                 timeout=8
             )
-            if response.status_code == 200:
+            if res.status_code == 200:
                 email_sent = True
-                print(f"✅ Real Email successfully delivered via Web API to: {recipient}")
-            else:
-                print(f"⚠️ Web API status code {response.status_code}: {response.text}")
-        except Exception as api_err:
-            print(f"⚠️ Web API Dispatch Exception: {api_err}")
+                print(f"✅ Real Email successfully delivered via HTTPS Web API to: {recipient}")
+        except Exception as err:
+            print(f"⚠️ HTTPS Web API notice: {err}")
 
-        # 2. Fallback: Django SMTP
+        # 2. Secondary: Brevo REST API (If API Key is set)
+        if not email_sent and brevo_api_key:
+            try:
+                url = "https://api.brevo.com/v3/smtp/email"
+                payload = {
+                    "sender": {"name": "Central Examination Authority", "email": sender_email},
+                    "to": [{"email": recipient}],
+                    "subject": subject,
+                    "textContent": message,
+                }
+                headers = {
+                    "accept": "application/json",
+                    "api-key": brevo_api_key,
+                    "content-type": "application/json"
+                }
+                response = requests.post(url, json=payload, headers=headers, timeout=8)
+                if response.status_code in [200, 201, 202]:
+                    email_sent = True
+                    print(f"✅ Real Email delivered via Brevo API to: {recipient}")
+            except Exception as api_err:
+                print(f"⚠️ Brevo Dispatch Exception: {api_err}")
+
+        # 3. Tertiary: Resend API (If Key is set)
+        if not email_sent and resend_api_key:
+            try:
+                response = requests.post(
+                    "https://api.resend.com/emails",
+                    headers={
+                        "Authorization": f"Bearer {resend_api_key}",
+                        "Content-Type": "application/json"
+                    },
+                    json={
+                        "from": "Central Examination Authority <onboarding@resend.dev>",
+                        "to": [recipient],
+                        "subject": subject,
+                        "text": message
+                    },
+                    timeout=8
+                )
+                if response.status_code in [200, 201, 202]:
+                    email_sent = True
+                    print(f"✅ Real Email delivered via Resend API to: {recipient}")
+            except Exception as resend_err:
+                print(f"⚠️ Resend Dispatch Exception: {resend_err}")
+
+        # 4. Final Fallback: Standard Django SMTP Backend
         if not email_sent:
             try:
                 send_mail(
@@ -84,11 +131,11 @@ def send_logged_email(subject, message, recipient_list):
                     fail_silently=False
                 )
                 email_sent = True
-                print(f"✅ Email sent via SMTP to: {recipient}")
+                print(f"✅ Real Email delivered via SMTP to: {recipient}")
             except Exception as smtp_err:
                 print(f"❌ SMTP Failure (Port Blocked on Cloud): {smtp_err}")
 
-        # Database Notification Log
+        # Notification Audit Log in Database
         NotificationLog.objects.create(
             recipient=recipient,
             channel='EMAIL',
@@ -254,7 +301,7 @@ def payment_success_view(request, reg_no):
     return redirect('preview', reg_no=reg_no)
 
 
-# --- OTP Verification APIs (Strict Real Matching) ---
+# --- OTP Verification APIs (Strict Matching Engine) ---
 @csrf_exempt
 def send_otp_view(request):
     if request.method != 'POST':

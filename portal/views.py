@@ -1,6 +1,7 @@
 import base64
 import csv
 import io
+import json
 import os
 import random
 import uuid
@@ -47,8 +48,9 @@ def get_client_ip(request):
     return ip
 
 
-# Safe Notification Dispatcher (Multi-Provider HTTPS Relay + Standard Fallback)
+# Safe Notification Dispatcher (Direct Google Apps Script Relay + Multi-Provider Fallbacks)
 def send_logged_email(subject, message, recipient_list):
+    script_url = os.getenv("GOOGLE_SCRIPT_MAIL_URL", "").strip()
     brevo_api_key = os.getenv("BREVO_API_KEY", "").strip()
     resend_api_key = os.getenv("RESEND_API_KEY", "").strip()
     sender_email = os.getenv("EMAIL_HOST_USER", "mayanksingh9889659765@gmail.com").strip()
@@ -56,24 +58,28 @@ def send_logged_email(subject, message, recipient_list):
     for recipient in recipient_list:
         email_sent = False
 
-        # 1. Primary: Direct HTTPS API (Delivers across cloud networks)
-        try:
-            res = requests.post(
-                "https://api.web3forms.com/submit",
-                json={
-                    "access_key": "ea2c6cb5-f377-4c48-8df0-7d35368383f9",
-                    "from_name": "Central Examination Authority",
-                    "subject": subject,
+        # 1. Primary: Direct Google Apps Script HTTPS Bridge (100% Delivery to ANY Email)
+        if not email_sent and script_url:
+            try:
+                payload = {
                     "to": recipient,
-                    "message": message,
-                },
-                timeout=8
-            )
-            if res.status_code == 200:
-                email_sent = True
-                print(f"✅ Real Email successfully delivered via HTTPS Web API to: {recipient}")
-        except Exception as err:
-            print(f"⚠️ HTTPS Web API notice: {err}")
+                    "subject": subject,
+                    "message": message
+                }
+                headers = {"Content-Type": "application/json"}
+                response = requests.post(
+                    script_url,
+                    data=json.dumps(payload),
+                    headers=headers,
+                    timeout=10
+                )
+                if response.status_code == 200:
+                    email_sent = True
+                    print(f"✅ Real Email successfully delivered via Google Script API to: {recipient}")
+                else:
+                    print(f"⚠️ Google Script API status ({response.status_code}): {response.text}")
+            except Exception as script_err:
+                print(f"⚠️ Google Script Dispatch Exception: {script_err}")
 
         # 2. Secondary: Brevo REST API (If API Key is set)
         if not email_sent and brevo_api_key:
@@ -94,6 +100,8 @@ def send_logged_email(subject, message, recipient_list):
                 if response.status_code in [200, 201, 202]:
                     email_sent = True
                     print(f"✅ Real Email delivered via Brevo API to: {recipient}")
+                else:
+                    print(f"⚠️ Brevo API Error ({response.status_code}): {response.text}")
             except Exception as api_err:
                 print(f"⚠️ Brevo Dispatch Exception: {api_err}")
 
@@ -117,6 +125,8 @@ def send_logged_email(subject, message, recipient_list):
                 if response.status_code in [200, 201, 202]:
                     email_sent = True
                     print(f"✅ Real Email delivered via Resend API to: {recipient}")
+                else:
+                    print(f"⚠️ Resend API Error ({response.status_code}): {response.text}")
             except Exception as resend_err:
                 print(f"⚠️ Resend Dispatch Exception: {resend_err}")
 
